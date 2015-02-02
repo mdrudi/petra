@@ -1,0 +1,174 @@
+
+#from include
+# NEMO
+# nemo_n_mpi_proc
+# NEMO_DATA0
+# NEMO_DATA1
+# WW
+# ww_n_mpi_proc
+# WW_DATAIN
+# ProductionCycle   --> optional
+# INSITUActive
+# SSTActive
+
+#from ExpBuild
+# WorkingDir
+# TSD
+# TSH
+# TED
+# TEH
+# incasenotfirst
+# ProductionCycle  --> generated in case not defined by include
+
+source /etc/profile.d/modules.sh
+module load intel
+module load cdo
+
+PATH=${WORKINGDIR}/tmp:$PATH
+
+F_RSVTASK=1
+export F_RSVTASK
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# print echo of commands before and after shell interpretation
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+date
+set -vx
+
+cd ${WORKINGDIR}/model
+rm -f ${WORKINGDIR}/model/*
+
+echo $LSB_JOBID > index_${ACTUALINDEX}.jobid
+MpiLogFile=${WORKINGDIR}/output/mpiexec.log_${LSB_JOBID}_${TED}${TEH}
+
+MPIPROGINF="ALL_DETAIL"
+export MPIPROGINF
+
+F_ERRCNT=0
+export F_ERRCNT
+
+
+
+
+
+
+
+NemoActive=0
+WwActive=0
+
+if [ $NEMO = "yes" ]; then
+   NemoActive=1
+fi
+
+if [ $WW = "yes" ]; then
+   WwActive=1
+fi
+
+ERRORNP=0
+ERRORWP=0
+
+if [ $NemoActive -eq 1 ]; then
+   sh ../tmp/NEMOPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $NEMO_DATA0 $NEMO_DATA1 $ACTUALINDEX $nemo_n_mpi_proc $incasenotfirst $INSITUActive $SSTActive
+   LastErrornp=$?
+   ERRORNP=`expr $ERRORNP + $LastErrornp`   
+   fi
+
+if [ $WwActive -eq 1 ]; then
+   sh ../tmp/WWPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $WW_DATAIN $NEMO_DATA1 $incasenotfirst 
+   LastErrorwp=$?
+   ERRORWP=`expr $ERRORWP + $LastErrorwp`
+   fi
+
+if [ $ERRORNP -ne 0 ]; then
+   echo "ERROR IN NEMOPrep.sh" 
+   touch index_${ACTUALINDEX}.error
+   exit 1
+fi
+
+if [ $ERRORWP -ne 0 ]; then
+   echo "ERROR IN WWPrep.sh"
+   touch index_${ACTUALINDEX}.error
+   exit 1
+fi
+
+cd ${WORKINGDIR}/model
+
+if [ $NemoActive -eq 1 ] && [ $WwActive -eq 1 ];then
+   MpiExecApp="-n $nemo_n_mpi_proc  ../tmp/opa : -n $ww_n_mpi_proc ../tmp/ww3_shel "
+   #echo "-n TCPUION ../tmp/ioserver" >> mpiexec.app.txt
+   fi
+
+if [ $NemoActive -eq 1 ] && [ ! $WwActive -eq 1 ]; then
+   MpiExecApp="-n $nemo_n_mpi_proc  ../tmp/opa "
+   #echo "-n TCPUION ../tmp/ioserver" >> mpiexec.app.txt
+   fi
+
+if [ ! $NemoActive -eq 1 ] && [ $WwActive -eq 1 ]; then
+   MpiExecApp="-n $ww_n_mpi_proc ../tmp/ww3_shel "
+   fi
+
+date -u > ${MpiLogFile} 
+
+time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
+
+echo "#### PHYS WAVE DONE" >> ${MpiLogFile}
+
+if [ _$INSITUActive = "_yes" ]; then
+   rm -f corr.nc
+   ln -fs ${WORKINGDIR}/tmp/var_3d var_3d
+   cp -p ${WORKINGDIR}/tmp/var_3d_nml var_3d_nml
+
+   var3d_n_mpi_proc=`expr $nemo_n_mpi_proc + $ww_n_mpi_proc`
+   MpiExecApp="-n $var3d_n_mpi_proc ./var_3d "
+   time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
+
+   echo "#### 3DVAR DONE" >> ${MpiLogFile}
+
+fi
+
+echo "#### ALL DONE" >> ${MpiLogFile}
+
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+## -- Save output files
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ls -alF
+
+ERRORS=0
+ERRORSW=0
+
+if [ $NemoActive -eq 1 ]; then
+   sh ../tmp/NEMOPost.sh $TED $TEH ${WORKINGDIR} $nemo_n_mpi_proc $ACTUALINDEX $INSITUActive
+   LastError=$?
+   ERRORS=`expr $ERRORS + $LastError`
+   fi
+
+if [ $WwActive -eq 1 ]; then
+   sh ../tmp/WWPost.sh $TSD $TSH $TED $TEH ${WORKINGDIR} $WW_DATAIN
+   LastErrorw=$?
+   ERRORSW=`expr $ERRORSW + $LastErrorw`
+   fi
+
+
+
+
+
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- Submit next Job
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+cd ${WORKINGDIR}/model
+
+if [ $ERRORS -eq 0 -a $ERRORSW -eq 0 ]; then
+#   mv -f ${WORKINGDIR}/model/mpiexec.log ${WORKINGDIR}/output/mpiexec.log_${TED}${TEH}
+   touch index_${ACTUALINDEX}.done
+   else
+   touch index_${ACTUALINDEX}.error
+   exit 1
+   fi
+
+#echo $LSB_JOBID > index_${ACTUALINDEX}.jobid  #messo all inizio del job
+

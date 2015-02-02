@@ -1,0 +1,59 @@
+# - NEMO -
+$OPAEXE       opa
+$IOSERVEREXE  ioserver
+$IODEF        iodef.xml     
+$XMLIOSERVER  xmlio_server.def
+$NEMO_REBUILD rebuild
+$NEMO_FLIO    flio_rbld.exe 
+tmp_template/$SYS.NEMOPrep.sh 
+tmp_template/$SYS.NEMOPost.sh 
+tmp_template/cosmo2NEMO/cosmo2NEMO.sh 
+tmp_template/cosmo2NEMO/cosmo2NEMO-fc.sh 
+tmp_template/cosmo2NEMO/cosmo2NEMO-an.sh 
+tmp_template/cosmo2NEMO/wgrib 
+tmp_template/cosmo2NEMO/seaoverlandc.exe 
+tmp_template/cosmo2NEMO/geofield.exe 
+tmp_template/cosmo2NEMO/LSM.nc 
+tmp_template/cosmo2NEMO/namelist 
+tmp_template/cosmo2NEMO/lsm.grb 
+tmp_template/cosmo2NEMO/lat.nc 
+tmp_template/change_DOMAIN_number_total/change_DOMAIN_number_total 
+# - SSTActive -
+tmp_template/input4NEMO/sst2NEMO.sh 
+tmp_template/input4NEMO/Tmask.nc 
+# - INSITUActive -
+$NEMO_3DVAR    var_3d
+$NEMO_3DVAR_NL var_3d_nml
+tmp_template/input4NEMO/$SYS.insitu2NEMO.sh   insitu2NEMO.sh
+tmp_template/input4NEMO/prep_ARGO_3dvar_V3.exe 
+tmp_template/input4NEMO/prep_SLA_3dvar_V3.exe 
+tmp_template/input4NEMO/prep_XBT_3dvar_V3.exe 
+tmp_template/input4NEMO/prep_SLA20_3dvar_V3.exe
+tmp_template/input4NEMO/med_ref20yto7y.nc
+# - WW - 
+$WW_GRID 
+$WW_PREP 
+$WW_STRT 
+$WW_GX   
+$WW_SHEL 
+$WW_OUTF 
+$WW_GRID_INP_TEMPLATE 
+$WW_PREP_INP_TEMPLATE 
+$WW_STRT_INP_TEMPLATE 
+$WW_GX_INP_TEMPLATE   
+$WW_SHEL_INP_TEMPLATE 
+$WW_OUTF_INP_TEMPLATE 
+tmp_template/$SYS.WWPrep.sh 
+tmp_template/$SYS.WWPost.sh 
+tmp_template/cosmo2WW/cosmo2WW.sh 
+tmp_template/cosmo2WW/cosmo2WW-an.sh 
+tmp_template/cosmo2WW/cosmo2WW-fc.sh 
+tmp_template/cosmo2WW/wgrib 
+tmp_template/cosmo2WW/prep_forcingc 
+tmp_template/cosmo2WW/geofield.exe 
+tmp_template/cosmo2WW/namelist 
+tmp_template/cosmo2WW/LSM.nc
+tmp_template/cosmo2WW/lsm.grb 
+tmp_template/cosmo2WW/lat.nc 
+Sys5.dimtable.dat
+#END

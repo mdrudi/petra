@@ -1,0 +1,2 @@
+/home/mfstest/petra-20130219/sample/download/ARGO.download.sh 
+/home/mfstest/petra-20130219/sample/download/HCMRIndex.download.sh

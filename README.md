@@ -1,0 +1,3 @@
+# Intro 
+This package **P**roduction syst**E**m infras**TR**ucture libr**A**ry - **PETRA** - is a prototype which has been deveoped within the framework of [ MyOcean project - http://www.myocean.eu] (http://www.myocean.eu) by the team in Istituto Nazionale di Geofisica e Vulcanologia [ INGV - http://www.ingv.it] (http://www.ingv.it). This repository includes also some open source programs which are required by PETRA to work properly. PETRA aims to underpin the implementation of all the tasks nedded in an operational oceanography data production system, such as data transfer, data processing, task coordination to implement the overall workflow and operation monitoring (real time and reporting for historical analysis) . 
+

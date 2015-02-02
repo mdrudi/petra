@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#BSUB -n CPUPN
+#BSUB -q PBSQUEUENAME 
+#BSUB -J EXP_NAME
+#BSUB -e ../output/aderr_ACTUALINDEX_%J
+#BSUB -o ../output/adout_ACTUALINDEX_%J
+#BSUB -R "infiniband==up"
+
+
