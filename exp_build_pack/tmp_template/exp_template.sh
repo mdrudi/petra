@@ -39,31 +39,6 @@ fi
 }
 
 
-CallRebuild() {
-   Cmd="cd ${ExpDir}/output"
-   echo $Cmd
-   eval $Cmd
-   ListMasterCR=`ls *_T_0000.nc *_V_0000.nc *_U_0000.nc *_W_0000.nc `
-   for FileMasterCR in $ListMasterCR; do
-      NumCharsCR=`echo $FileMasterCR | wc -c` 
-      NumCharsCRm9=`expr $NumCharsCR - 9`
-      FileMasterCRT=`echo $FileMasterCR | cut -c-${NumCharsCRm9}`
-      if [ ! -f ${FileMasterCRT}.nc ]; then
-         echo FileMasterCR= $FileMasterCR
-###### Just To Manage a Bug in NEMO - START
-         NumFilesCR=`ls ${FileMasterCRT}_????.nc | wc -l`
-         for FileLeafCR in `ls ${FileMasterCRT}_????.nc`; do
-            Cmd="ncatted -a DOMAIN_number_total,global,o,l,${NumFilesCR} $FileLeafCR"
-            echo $Cmd
-            eval $Cmd
-         done
-###### Just To Manage a Bug in NEMO - END
-         Cmd="${ExpDir}/tmp/rebuild -o ${FileMasterCRT}.nc ${FileMasterCRT}_????.nc"
-         echo $Cmd
-         eval $Cmd
-      fi
-   done   
-}
 
 echo
 echo ExpDir = $ExpDir
@@ -84,11 +59,9 @@ for aa in `seq 1 $last_a`; do
    #bsub<Job_EXP_${aa} 
 
    while [ ! -f ${ExpDir}/model/index_${aa}.done ] && [ ! -f ${ExpDir}/model/index_${aa}.error ]; do
-      #sleep 60
 
       echo Starting index $aa - `date -u `
-      #bsub -W 60 -I <Job_EXP_${aa}
-      bsub -W 35 -K <Job_EXP_${aa}
+      bsub -W 16 -K <Job_EXP_${aa}
 
       echo bsub exit code : $?
 
@@ -99,8 +72,26 @@ for aa in `seq 1 $last_a`; do
    done
 
    date -u
-#   CallRebuild
-   bsub -K <Job_EXP_${aa}R
+   
+   if [ $aa -eq 1 ] ; then
+      bsub < Job_EXP_${aa}R
+      #echo job name: `cat Job_EXP_${aa}R | grep "BSUB -J" | awk '{ print $3 }'`
+      #sleep 5
+      #jobidR=`cat ${ExpDir}/output/indexR_${aa}.jobid`
+   else
+      a1=`expr $aa - 1`
+      prev_jobname=`cat Job_EXP_${a1}R | grep "BSUB -J" | awk '{ print $3 }'`
+      echo prev job name: $prev_jobname
+      prev_jobid=`cat ${ExpDir}/output/indexR_${a1}.jobid`
+      echo prev job id: $prev_jobid
+      if [ $aa -eq $last_a ] ; then
+         bsub -K -w "done(${prev_jobname})" < Job_EXP_${aa}R
+      else
+         bsub -w "done(${prev_jobname})" < Job_EXP_${aa}R
+      #sleep 5
+      #jobidR=`cat ${ExpDir}/output/indexR_${aa}.jobid`
+      fi
+   fi   
    date -u
 
    if [ -f ${ExpDir}/model/index_${aa}.error ]; then
@@ -134,6 +125,13 @@ if [ -f restart.nc_TEDTEH ] ; then
     echo $Cmd
     eval $Cmd
     fi
+
+while [ ! -f ${ExpDir}/output/indexR_${last_a}.jobid ] ; do
+      Cmd="waiting `cat ${ExpDir}/tmp/Job_EXP_${last_a}R | grep 'BSUB -J' | awk '{ print $3 }'`"
+      echo $Cmd    
+      sleep 60
+done
+
 
 date -u
 

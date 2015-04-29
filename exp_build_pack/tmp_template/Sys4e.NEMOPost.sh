@@ -78,6 +78,16 @@ mv *_grid_*.nc ${R_SORTIE_OCE}/.
 #- Save corrections and observations
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+##### CHECK ON MISFIT EXISTENCE ##### 
+check_mis()
+{
+if [ -f $1 ] ; then
+   $DPUT $1 $2
+else
+   echo '-9999' > $2
+fi
+}
+
 if [ _$INSITUActive == '_yes' ] ; then
    check_file obs.dat 
    check_file corr_eta.nc 
@@ -98,12 +108,11 @@ if [ _$INSITUActive == '_yes' ] ; then
    check_file ${R_SORTIE_OCE}/corr.nc_${TED}${TEH}
    check_dimfile ${R_SORTIE_OCE}/corr.nc_${TED}${TEH} $phys_cor_TEO
    $DPUT obs.dat ${R_SORTIE_OCE}/obs_1.dat_${TED}${TEH}
-   $DPUT sla_mis.dat ${R_SORTIE_OCE}/sla_mis.dat_${TED}${TEH}
-   $DPUT arg_mis.dat ${R_SORTIE_OCE}/arg_mis.dat_${TED}${TEH}
-   $DPUT xbt_mis.dat ${R_SORTIE_OCE}/xbt_mis.dat_${TED}${TEH}
-   $DPUT gld_mis.dat ${R_SORTIE_OCE}/gld_mis.dat_${TED}${TEH}
-   #$DPUT sst_mis.dat ${R_SORTIE_OCE}/sst_mis.dat_${TED}${TEH}
-   
+   check_mis sla_mis.dat ${R_SORTIE_OCE}/sla_mis.dat_${TED}${TEH}
+   check_mis arg_mis.dat ${R_SORTIE_OCE}/arg_mis.dat_${TED}${TEH}
+   check_mis xbt_mis.dat ${R_SORTIE_OCE}/xbt_mis.dat_${TED}${TEH}
+   check_mis gld_mis.dat ${R_SORTIE_OCE}/gld_mis.dat_${TED}${TEH}
+   check_mis sst_mis.dat ${R_SORTIE_OCE}/sst_mis.dat_${TED}${TEH}
 fi
 
 

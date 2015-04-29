@@ -45,5 +45,6 @@ CallRebuild() {
 
 date -u
 CallRebuild
+echo $LSB_JOBID > ${ExpDir}/output/indexR_${ACTUALINDEX}.jobid
 date -u
 

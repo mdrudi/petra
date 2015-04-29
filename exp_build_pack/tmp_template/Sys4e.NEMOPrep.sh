@@ -6,11 +6,12 @@ ProdCycle=$5
 path_s=$6
 DATA0=$7
 DATA1=$8
-actual_index=$9
-tcpun=${10}
-incasenotfirst=${11}
-INSITUActive=${12}
-SSTActive=${13}
+DATA2=$9
+actual_index=${10}
+tcpun=${11}
+incasenotfirst=${12}
+INSITUActive=${13}
+SSTActive=${14}
 
 ########################################################################
 ##
@@ -158,17 +159,17 @@ fi
 # link LOBC files 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ln -fs ${DATA1}/LOBC/${TSD}_obcwest_TS_merc.nc obcwest_TS.nc
-ln -fs ${DATA1}/LOBC/${TSD}_obcwest_U_merc.nc  obcwest_U.nc
-ln -fs ${DATA1}/LOBC/${TSD}_obcwest_V_merc.nc  obcwest_V.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcwest_TS_merc.nc obcwest_TS.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcwest_U_merc.nc  obcwest_U.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcwest_V_merc.nc  obcwest_V.nc
  
-ln -fs ${DATA1}/LOBC/${TSD}_obcnorth_TS_merc.nc obcnorth_TS.nc
-ln -fs ${DATA1}/LOBC/${TSD}_obcnorth_V_merc.nc  obcnorth_V.nc
-ln -fs ${DATA1}/LOBC/${TSD}_obcnorth_U_merc.nc  obcnorth_U.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcnorth_TS_merc.nc obcnorth_TS.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcnorth_V_merc.nc  obcnorth_V.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcnorth_U_merc.nc  obcnorth_U.nc
 
-ln -fs ${DATA1}/LOBC/${TSD}_obcsouth_TS_merc.nc obcsouth_TS.nc
-ln -fs ${DATA1}/LOBC/${TSD}_obcsouth_V_merc.nc obcsouth_V.nc
-ln -fs ${DATA1}/LOBC/${TSD}_obcsouth_U_merc.nc obcsouth_U.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcsouth_TS_merc.nc obcsouth_TS.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcsouth_V_merc.nc obcsouth_V.nc
+ln -fs ${DATA2}/${ProdCycle}/${TSD}_obcsouth_U_merc.nc obcsouth_U.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link WIND
@@ -181,6 +182,7 @@ mkdir -p ${R_TMP}/wind/work ; rm -f ${R_TMP}/wind/work/*
 
 cd ${R_TMP}/wind/in 
 touch ${R_TMP}/wind/in/startday.$TSD
+touch ${R_TMP}/wind/in/procday.$ProdCycle
 EndDay=$TED
 if [ $TED -eq $TSD ] ; then
     EndDay=`jday.py $TED +1`  # per risolvere bug esperimenti 12h
@@ -191,21 +193,24 @@ fi
 
 if [ $TED -ge $ProdCycle ] ; then 
    
-   for file in `ls -1 ${DATA1}/ECMWF/NETCDF/$ProdCycle/*.nc` ; do
+   for file in `ls -1 ${DATA1}/ECMWF18/NETCDF/$ProdCycle/*.nc` ; do
        ln -s $file 
        done
 
    sh $R_EXPER/ecmwf2NEMO-fc.sh  ${R_TMP}/wind/in ${R_TMP}/wind/work ${R_TMP}/wind/work ${R_TMP}/wind
-      
-     fc3=`jday.py $ProdCycle +3`
-      
-     idd=`echo $TSD | cut -c 7-8` ; id3=`echo $fc3 | cut -c 7-8`
-     imm=`echo $TSD | cut -c 5-6` ; im3=`echo $fc3 | cut -c 5-6`
-     iyr=`echo $TSD | cut -c 1-4` ; iy3=`echo $fc3 | cut -c 1-4` 
-          
-     if [ $TSD -eq $ProdCycle ] ; then
-        mv ${R_TMP}/wind/ecmwf_y${iyr}m${imm}d${idd}.nc_8rec ${R_TMP}/wind/ecmwf_y${iyr}m${imm}d${idd}.nc
-        mv ${R_TMP}/wind/ecmwf_y${iy3}m${im3}d${id3}.nc_8rec ${R_TMP}/wind/ecmwf_y${iy3}m${im3}d${id3}.nc 
+     
+         
+     if [ $TSD -ge `jday.py $ProdCycle +0` ] &&  [ $TSD -le `jday.py $ProdCycle +2` ] ; then
+        id0=`echo $TSD | cut -c 7-8`
+        id1=`echo $TED | cut -c 7-8`
+        name=`find ${R_TMP}/wind/ -name ecmwf_y*d${id0}.nc_8rec`
+        if [[ ! -z $name ]] ; then
+          mv $name `dirname $name`/`basename $name | cut -d_ -f1-2`
+        fi
+        name=`find ${R_TMP}/wind/  -name ecmwf_y*d${id1}.nc_8rec`
+        if [[ ! -z $name ]] ; then
+          mv $name `dirname $name`/`basename $name | cut -d_ -f1-2`
+        fi
      fi
     
 else
@@ -213,11 +218,11 @@ else
    #while [ $day -ne `jday.py $TED +1` ] ; do
    while [ $day -le $EndDay ] ; do
         day1=`jday.py $day +1`
-        name=`echo $day-ECMWF---*-MEDATL-b${day1}_an-fv02.00.nc`
-        file=`find ${DATA1}/ECMWF/NETCDF -name $name | tail -1`
+        name=`echo $day-ECMWF---*-MEDATL-b${day1}_an-fv05.00.nc`
+        file=`find ${DATA1}/ECMWF18/NETCDF -name $name | tail -1`
         if [ _$file = "_" ]; then
-           name=`echo $day-ECMWF---*-MEDATL-b${day}_antmp-fv02.00.nc`
-           file=`find ${DATA1}/ECMWF/NETCDF -name $name | tail -1`
+           name=`echo $day-ECMWF---*-MEDATL-b${day}_antmp-fv05.00.nc`
+           file=`find ${DATA1}/ECMWF18/NETCDF -name $name | tail -1`
         fi
         echo link to $file
         ln -fs $file

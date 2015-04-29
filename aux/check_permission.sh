@@ -18,7 +18,7 @@ MyPath=`pwd`
 OpPath=`dirname $MyPath | cut -d/ -f1-4` #$HOME/MFS_SYS4C
 cd $OpPath
 list="$HOME/tmplist.txt"
-ls -d Lp*/* cosmo*/* forcing*/* indata*/*  > $list
+ls -d L*/* cosmo*/* forcing*/* indata*/*  > $list
 nline=`cat $list | wc -l `
 line=1
   while [ $line -le $nline ] ; do

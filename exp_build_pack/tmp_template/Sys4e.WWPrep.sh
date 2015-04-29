@@ -110,6 +110,7 @@ mkdir -p ${R_TMP}/wind/work
 
 cd ${R_TMP}/wind/in 
 touch ${R_TMP}/wind/in/startday.$TSD
+touch ${R_TMP}/wind/in/procday.$ProdCycle
 EndDay=$TED
 if [ $TED -eq $TSD ] ; then
     EndDay=`jday.py $TED +1`  # per risolvere bug esperimenti 12h
@@ -121,7 +122,7 @@ fi
 
 if [ $TED -ge $ProdCycle ] ; then 
 
-   for file in `ls -1 ${DATA1}/ECMWF/NETCDF/$ProdCycle/*.nc` ; do
+   for file in `ls -1 ${DATA1}/ECMWF18/NETCDF/$ProdCycle/*.nc` ; do
        ln -s $file
       done
 
@@ -132,11 +133,11 @@ else
    #while [ $day -ne `jday.py $TED +1` ] ; do
    while [ $day -le $EndDay  ] ; do
         day1=`jday.py $day +1`
-        name=`echo $day-ECMWF---AM025-MEDATL-b${day1}_an-fv02.00.nc`
-        file=`find ${DATA1}/ECMWF/NETCDF -name $name | tail -1`
+        name=`echo $day-ECMWF---AM0125-MEDATL-b${day1}_an-fv05.00.nc`
+        file=`find ${DATA1}/ECMWF18/NETCDF -name $name | tail -1`
         if [ _$file = "_" ]; then
-           name=`echo $day-ECMWF---AM025-MEDATL-b${day}_antmp-fv02.00.nc`
-           file=`find ${DATA1}/ECMWF/NETCDF -name $name | tail -1`
+           name=`echo $day-ECMWF---AM0125-MEDATL-b${day}_antmp-fv05.00.nc`
+           file=`find ${DATA1}/ECMWF18/NETCDF -name $name | tail -1`
         fi
         echo link to $file
         ln -fs $file

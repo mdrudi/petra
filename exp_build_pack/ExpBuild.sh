@@ -4,9 +4,7 @@
 ## This script prepares consecutive simulations
 ## 
 ##  Paolo Oddo           paolo.oddo@bo.ingv.it (ex MAKE_SIMU.sh)
-##  Massimiliano Drudi   massimiliano.drudi@ingv.it
-##  Giacomo Girardi      giacomo.girardi@ingv.it
-##
+##  Massimiliano Drudi   massimiliano.drudi@bo.ingv.it
 ####################################################################
 
 . `dirname $0`/../envi.sh
@@ -264,6 +262,7 @@ do
    echo "WORKINGDIR=${WorkingDir}"      >> ${JobExpOut}
    echo "TSD=${actual_start_day}"       >> ${JobExpOut}
    echo "TED=${actual_end_day}  "       >> ${JobExpOut}
+   echo ACTUALINDEX=$actual_index       >> ${JobExpOut}
    echo                                 >> ${JobExpOut}
    cat tmp_template/Job_EXP_Rtemplate   >> ${JobExpOut}
 

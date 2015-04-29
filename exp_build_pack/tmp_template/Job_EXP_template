@@ -27,8 +27,6 @@ module load cdo
 
 PATH=${WORKINGDIR}/tmp:$PATH
 
-F_RSVTASK=1
-export F_RSVTASK
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # print echo of commands before and after shell interpretation
@@ -42,12 +40,6 @@ rm -f ${WORKINGDIR}/model/*
 
 echo $LSB_JOBID > index_${ACTUALINDEX}.jobid
 MpiLogFile=${WORKINGDIR}/output/mpiexec.log_${LSB_JOBID}_${TED}${TEH}
-
-MPIPROGINF="ALL_DETAIL"
-export MPIPROGINF
-
-F_ERRCNT=0
-export F_ERRCNT
 
 
 
@@ -71,7 +63,7 @@ ERRORNP=0
 ERRORWP=0
 
 if [ $NemoActive -eq 1 ]; then
-   sh ../tmp/$SYS.NEMOPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $NEMO_DATA0 $NEMO_DATA1 $ACTUALINDEX $nemo_n_mpi_proc $incasenotfirst $INSITUActive $SSTActive
+   sh ../tmp/$SYS.NEMOPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $NEMO_DATA0 $NEMO_DATA1 $NEMO_DATA2 $ACTUALINDEX $nemo_n_mpi_proc $incasenotfirst $INSITUActive $SSTActive
    LastErrornp=$?
    ERRORNP=`expr $ERRORNP + $LastErrornp`
    fi
@@ -99,22 +91,23 @@ fi
 cd ${WORKINGDIR}/model
 
 if [ $NemoActive -eq 1 ] && [ $WwActive -eq 1 ];then
-   MpiExecApp="-n $nemo_n_mpi_proc  ../tmp/opa : -n $ww_n_mpi_proc ../tmp/ww3_shel "
+   MpiExecApp=" -n $nemo_n_mpi_proc  ../tmp/opa -n : -n $ww_n_mpi_proc ../tmp/ww3_shel -n "
    #echo "-n TCPUION ../tmp/ioserver" >> mpiexec.app.txt
    fi
 
 if [ $NemoActive -eq 1 ] && [ ! $WwActive -eq 1 ]; then
-   MpiExecApp="-n $nemo_n_mpi_proc  ../tmp/opa "
+   MpiExecApp="-n $nemo_n_mpi_proc  ../tmp/opa -n "
    #echo "-n TCPUION ../tmp/ioserver" >> mpiexec.app.txt
    fi
 
 if [ ! $NemoActive -eq 1 ] && [ $WwActive -eq 1 ]; then
-   MpiExecApp="-n $ww_n_mpi_proc ../tmp/ww3_shel "
+   MpiExecApp="-n $ww_n_mpi_proc ../tmp/ww3_shel -n "
    fi
 
 date -u > ${MpiLogFile} 
 
-time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
+#time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
+mpiexec.hydra $MpiExecApp  >> ${MpiLogFile} 2>&1 
 
 echo "#### PHYS WAVE DONE" >> ${MpiLogFile}
 
@@ -124,9 +117,9 @@ if [ _$INSITUActive = "_yes" ]; then
    cp -p ${WORKINGDIR}/tmp/var_3d_nml var_3d_nml
 
    var3d_n_mpi_proc=`expr $nemo_n_mpi_proc + $ww_n_mpi_proc`
-   MpiExecApp="-n $var3d_n_mpi_proc ./var_3d "
-   time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
-
+   MpiExecApp=" ./var_3d "
+   #time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
+   mpiexec.hydra $MpiExecApp  >> ${MpiLogFile} 2>&1 
    echo "#### 3DVAR DONE" >> ${MpiLogFile}
 
 fi

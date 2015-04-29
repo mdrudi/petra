@@ -14,13 +14,11 @@ exp_build_pack/tmp_template/cosmo2NEMO/emos_000392
 exp_build_pack/tmp_template/input4NEMO/med_ref20yto7y.nc
 exp_build_pack/tmp_template/input4NEMO/Tmask.nc
 aux/old/
-exp_build_pack/.ExpBuild.sh.bk20141114
 sample/download/old/
 sample/event/old/
 scheduler/old/
 transf.wrapper/old/
 transf/old/
-.envi.sh.bk20141114
 *.pyc
 README.local
 .DS_Store
