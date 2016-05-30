@@ -15,6 +15,7 @@ bash ${FileTransfer}/ftp_download.sh ${TIComponentName} ${TIComponentName}
 bash ${FileTransfer}/http_download.sh ${TIComponentName} ${TIComponentName} 
 bash ${FileTransfer}/subsetter_download.sh ${TIComponentName} ${TIComponentName}
 bash ${FileTransfer}/ftp_upload.sh ${TIComponentName} ${TIComponentName}
+bash ${FileTransfer}/ftpXXXX_upload.sh ${TIComponentName} ${TIComponentName}
 
 for file_complete in `bash ${FileTransfer}/list_complete.sh ${TIComponentName}`; do
    procday=`bash ${FileTransfer}/wrap_get.sh procday $file_complete`

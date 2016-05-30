@@ -4,7 +4,13 @@ ExeMap=$3   #optional
 
 . `dirname $0`/envi.sh
 
-LogFile=$SCLogDir/`basename $0`-$TimeStamp-$$.log 
+if [ _$Day != _"" ]; then
+   ProcDay=$Day
+   else
+   ProcDay=`today.sh`
+   fi
+
+LogFile=$SCLogDir/`basename $0`-`basename ${QueueList}`-${ProcDay}-$TimeStamp-$$.log 
 #echo $LogFile 
 exec 1> $LogFile  2>&1                                                                           
 
@@ -64,11 +70,8 @@ ProcHandler() {
 
 
 if [ _$Day != _"" ]; then 
-   ProcDay=$Day
-   echo Working in manual mode with ProcToday= $ProcToday
-else
-   ProcDay=`today.sh`
-fi
+   echo Working in manual mode with ProcToday= $ProcDay
+   fi
 
 
 #if [ _$ExeMap == _"" ]; then

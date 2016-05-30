@@ -70,7 +70,7 @@ if [ $Command == "set" ]; then
    #   eOwner=`whoami`
    #   fi
    
-   echo Event Setting ${eOwner}:${eID}   - `date +%Y%m%d-%H%M%S` 
+   echo Event Setting ${eOwner}:${eID}   - `date -u +%Y%m%d-%H%M%S` 
 
    #if [ ! -d $EventSpace/$eOwner ]; then
    #   echo Event Space Not Available : $EventSpace/$eOwner - ERROR
@@ -82,12 +82,13 @@ if [ $Command == "set" ]; then
       echo Event Already Exist : no action - ${EventOwnerID} - WARNING
       exit 0
       else
-      NewFileEvent=$EventSpace/$eOwner/`date +%Y%m%d%H%M%S`_${eID}_
+      NewFileEvent=$EventSpace/$eOwner/`date -u +%Y%m%d%H%M%S`_${eID}_
       #date -u > $NewFileEvent
       if [ _${EventBody} != _ ] && [ -f $EventBody ]; then
          cat $EventBody >> $NewFileEvent
          else
-         date -u > $NewFileEvent
+         #date -u > $NewFileEvent
+         sec_counter.py TagSecEvent > $NewFileEvent
          fi
       exit 1
       fi
@@ -103,7 +104,7 @@ if [ $Command == "appendmsg" ]; then
    #   eOwner=`whoami`
    #   fi
 
-   echo Event Append Msg ${eOwner}:${eID}tmp  \"$EventBody\" - `date +%Y%m%d-%H%M%S`
+   echo Event Append Msg ${eOwner}:${eID}tmp  \"$EventBody\" - `date -u +%Y%m%d-%H%M%S`
 
    #if [ ! -d $EventSpace/$eOwner ]; then
    #   echo Event Space Not Available : $EventSpace/$eOwner - ERROR
@@ -171,7 +172,7 @@ if [ $Command == "wait" ]; then
    #   eOwner=`whoami`
    #   fi
 
-   echo Event Waiting ${eOwner}:${eID}  - `date +%Y%m%d-%H%M%S`
+   echo Event Waiting ${eOwner}:${eID}  - `date -u +%Y%m%d-%H%M%S`
 
    #if [ ! -d $EventSpace/$eOwner ]; then
    #   echo Event Space Not Available : $EventSpace/$eOwner - ERROR
@@ -186,7 +187,7 @@ if [ $Command == "wait" ]; then
       fi
    
    while [ "$Continua" == "no" ] ; do
-      echo Event Waiting ${eOwner}:${eID}  - `date +%Y%m%d-%H%M%S`
+      echo Event Waiting ${eOwner}:${eID}  - `date -u +%Y%m%d-%H%M%S`
       sleep 600
 
       $0 check ${eOwner}:${eID} > /dev/null
@@ -195,7 +196,7 @@ if [ $Command == "wait" ]; then
          fi
       done
 
-   echo Event Found ${eOwner}:${eID}  - `date +%Y%m%d-%H%M%S`
+   echo Event Found ${eOwner}:${eID}  - `date -u +%Y%m%d-%H%M%S`
    exit 1
    fi
 
@@ -216,16 +217,16 @@ if [ $Command == "check" ]; then
    #   fi
 
    if [ ${eID} == "TRUE" ]; then
-      echo Event Found ${eOwner}:${eID}  - `date +%Y%m%d-%H%M%S`
+      echo Event Found ${eOwner}:${eID}  - `date -u +%Y%m%d-%H%M%S`
       exit 1
       fi
 
    searchresult=`GetEventFile ${eID}` #`ls -1 $EventSpace/$eOwner/ | grep _${eID}_ `
    if [  _$searchresult != "_" ]; then
-      echo Event Found ${eOwner}:${eID}  - `date +%Y%m%d-%H%M%S`
+      echo Event Found ${eOwner}:${eID}  - `date -u +%Y%m%d-%H%M%S`
       exit 1
       else
-      echo Event Not Found ${eOwner}:${eID}  - `date +%Y%m%d-%H%M%S`
+      echo Event Not Found ${eOwner}:${eID}  - `date -u +%Y%m%d-%H%M%S`
       exit 0
       fi
    fi

@@ -1,3 +1,0 @@
-/home/mfstest/petra-20130214/sample/download
-/home/mfstest/petra-20130214/sample/event
-/home/mfstest/petra-20130214/sample/proc

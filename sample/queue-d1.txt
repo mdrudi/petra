@@ -1,4 +1,0 @@
-/home/mfstest/sys4c_model_test/petra/sample/download/PO.download.sh
-/home/mfstest/sys4c_model_test/petra/sample/proc/river_po.proc.sh
-/home/mfstest/sys4c_model_test/petra/sample/event/PO_READY.event2file.sh
-/home/mfstest/sys4c_model_test/petra/sample/event/PO_READY2.event2event.sh

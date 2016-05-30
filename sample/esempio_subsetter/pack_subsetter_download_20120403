@@ -1,3 +1,0 @@
--s http://purl.org/myocean/ontology/service/database#SEALEVEL_MED_SLA_L3_NRT_OBSERVATIONS_008_002_a-FILE -d http://purl.org/myocean/ontology/product/database#dataset-duacs-nrt-medsea-j2-sla-l3 -t 2012-11-05 -T 2012-11-05 -f 1.zip,1.zip
--s http://purl.org/myocean/ontology/service/database#SEALEVEL_MED_SLA_L3_NRT_OBSERVATIONS_008_002_a-FILE -d http://purl.org/myocean/ontology/product/database#dataset-duacs-nrt-medsea-j2-sla-l3 -t 2012-03-14 -T 2012-03-14 -f 2.zip,2.zip
--s http://purl.org/myocean/ontology/service/database#SEALEVEL_MED_SLA_L3_NRT_OBSERVATIONS_008_002_a-FILE -d http://purl.org/myocean/ontology/product/database#dataset-duacs-nrt-medsea-j2-sla-l3 -t 2012-03-15 -T 2012-03-15 -f 3.zip,3.zip

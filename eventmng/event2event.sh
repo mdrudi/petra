@@ -3,7 +3,8 @@
 Descr=$1
 ProcDay=$2
 
-event_id_start=${ComponentName}-e2e-`basename $Descr|cut -d. -f1`-${ProcDay}-start
+event_id_base=${ComponentName}-e2e-`basename $Descr|cut -d. -f1`-${ProcDay}-
+event_id_start=${event_id_base}start
 
 #sh $Descr already_done $ProcDay
 `dirname $0`/event.sh check :${event_id_start}
@@ -23,6 +24,6 @@ for event_id in `sh $Descr wait_for_events $ProcDay`; do
 if [ $non_trovato -eq 0 ]; then
    echo All input events are available
    `dirname $0`/event.sh set :${event_id_start}
-   sh $Descr generate_events $ProcDay
+   sh $Descr generate_events $ProcDay $event_id_base
    fi
 

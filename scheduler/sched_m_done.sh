@@ -2,7 +2,9 @@
 
 . `dirname $0`/envi.sh
 
-LogFile=$SCLogDir/`basename $0`-${TimeStamp}-$$.log
+PathDone=$1
+
+LogFile=$SCLogDir/`basename $0`-`basename ${PathDone}`-${TimeStamp}-$$.log
 #echo $LogFile
 exec 1> $LogFile  2>&1
 
@@ -56,7 +58,7 @@ ProcessDone () {
 
 
 
-PathDone=$1
+#PathDone=$1
 
 if [ ! _$PathDone = "_" ]; then
 
