@@ -1,0 +1,17 @@
+# - NEMO -
+$OPAEXE       opa
+$IOSERVEREXE  xios_server.exe
+$IODEF        iodef.xml     
+$FIELDDEF     field_def.xml
+$DOMAINDEF    domain_def.xml
+tmp_template/$SYS.NEMOPrep.sh
+tmp_template/$SYS.NEMOPost.sh
+tmp_template/ecmwf2NEMO/ecmwf2NEMO.sh
+tmp_template/ecmwf2NEMO/ecmwf2NEMO-fc.sh
+tmp_template/ecmwf2NEMO/ecmwf2NEMO-an.sh
+tmp_template/ecmwf2NEMO/seaoverland.exe
+# - SSTActive -
+tmp_template/input4NEMO/sst2NEMO.sh
+tmp_template/input4NEMO/Tmask.nc
+$SYS.dimtable.dat
+#END

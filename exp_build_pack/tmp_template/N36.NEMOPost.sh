@@ -49,15 +49,6 @@ fi
 
 [ -d ${R_SORTIE_OCE} ] || mkdir -p ${R_SORTIE_OCE}
 
-#- Save obc restart file
-echo check_file restart.obc.output 
-check_file restart.obc.output 
-echo check_dimfile restart.obc.output $phys_obc_TEO
-check_dimfile restart.obc.output $phys_obc_TEO
-$DPUT restart.obc.output ${R_SORTIE_OCE}/restart.obc_${TED}${TEH}
-check_file ${R_SORTIE_OCE}/restart.obc_${TED}${TEH} 
-check_dimfile ${R_SORTIE_OCE}/restart.obc_${TED}${TEH} $phys_obc_TEO
-
 #- Save pe restart file
 tcpum1=`expr $tcpun - 1`
 for aa in `seq 0 $tcpum1`; do
@@ -80,6 +71,16 @@ mv *_grid_*.nc ${R_SORTIE_OCE}/.
 #- Save corrections and observations
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#### CHECK ON MISFIT EXISTENCE ##### 
+check_mis()
+{
+if [ -f $1 ] ; then
+   $DPUT $1 $2
+#else
+#   echo '-9999' > $2
+fi
+}
+
 if [ _$INSITUActive == '_yes' ] ; then
    check_file obs.dat 
    check_file corr_eta.nc 
@@ -100,30 +101,29 @@ if [ _$INSITUActive == '_yes' ] ; then
    check_file ${R_SORTIE_OCE}/corr.nc_${TED}${TEH}
    check_dimfile ${R_SORTIE_OCE}/corr.nc_${TED}${TEH} $phys_cor_TEO
    $DPUT obs.dat ${R_SORTIE_OCE}/obs_1.dat_${TED}${TEH}
-   $DPUT sla_mis.dat ${R_SORTIE_OCE}/sla_mis.dat_${TED}${TEH}
-   $DPUT arg_mis.dat ${R_SORTIE_OCE}/arg_mis.dat_${TED}${TEH}
-   $DPUT xbt_mis.dat ${R_SORTIE_OCE}/xbt_mis.dat_${TED}${TEH}
-   $DPUT gld_mis.dat ${R_SORTIE_OCE}/gld_mis.dat_${TED}${TEH}
-   #$DPUT sst_mis.dat ${R_SORTIE_OCE}/sst_mis.dat_${TED}${TEH}
-   
+   check_mis sla_mis.dat ${R_SORTIE_OCE}/sla_mis.dat_${TED}${TEH}
+   check_mis arg_mis.dat ${R_SORTIE_OCE}/arg_mis.dat_${TED}${TEH}
+   check_mis xbt_mis.dat ${R_SORTIE_OCE}/xbt_mis.dat_${TED}${TEH}
+   check_mis gld_mis.dat ${R_SORTIE_OCE}/gld_mis.dat_${TED}${TEH}
+   check_mis sst_mis.dat ${R_SORTIE_OCE}/sst_mis.dat_${TED}${TEH}
+   $DPUT obs_stat.dat ${R_SORTIE_OCE}/obs_stat.dat_${TED}${TEH}
+   $DPUT argo_rejc.dat ${R_SORTIE_OCE}/argo_rejc.dat_${TED}${TEH}
+   $DPUT glider_rejc.dat ${R_SORTIE_OCE}/glider_rejc.dat_${TED}${TEH}
+   $DPUT sla_rejc.dat ${R_SORTIE_OCE}/sla_rejc.dat_${TED}${TEH}
+   $DPUT xbt_rejc.dat ${R_SORTIE_OCE}/xbt_rejc.dat_${TED}${TEH}
 fi
+
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #- Save ftrace file
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f ftrace.out* ] && $DPUT ftrace.out* ${R_SORTIE_OCE}/.
- 
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Rebuild a sinlge file for MPI runs
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#cd $R_EXPER
-#qsub Job_rebuilt_NAME
+# BUG - non puo' essere l'ultima istruzione [ -f ftrace.out* ] && $DPUT ftrace.out* ${R_SORTIE_OCE}/.
 
-if [ -d $WORKINGDIR/model/wind ]; then
-   rm -f $WORKINGDIR/model/wind/*
-   rmdir $WORKINGDIR/model/wind
-   fi
+#if [ -d $WORKINGDIR/model/wind ]; then
+#   rm -f $WORKINGDIR/model/wind/*
+#   rmdir $WORKINGDIR/model/wind
+#   fi
 
 
 

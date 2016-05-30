@@ -6,11 +6,12 @@ ProdCycle=$5
 path_s=$6
 DATA0=$7
 DATA1=$8
-actual_index=$9
-tcpun=${10}
-incasenotfirst=${11}
-INSITUActive=${12}
-SSTActive=${13}
+DATA2=$9
+actual_index=${10}
+tcpun=${11}
+incasenotfirst=${12}
+INSITUActive=${13}
+SSTActive=${14}
 
 ########################################################################
 ##
@@ -72,9 +73,11 @@ cd ${R_TMP}
 #- Namelist for the configuration 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-cp ${R_EXPER}/namelist_${actual_index} namelist
-cp ${R_EXPER}/xmlio_server.def xmlio_server.def
-cp ${R_EXPER}/iodef.xml iodef.xml
+cp ${R_EXPER}/namelist_${actual_index} namelist_ref
+touch namelist_cfg
+cp ${R_EXPER}/field_def.xml  field_def.xml
+cp ${R_EXPER}/iodef.xml      iodef.xml
+cp ${R_EXPER}/domain_def.xml domain_def.xml
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 # Link static variables (ECMWF land-sea mask and bathymetry)
@@ -86,13 +89,14 @@ ln -fs ${DATA0}/bathy_meter_open_nemo3.nc bathy_meter.nc
 # Link climatology for relaxation
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-ln -fs ${DATA0}/theta_medatlas_nemo4.nc data_1m_potential_temperature_nomask.nc
-ln -fs ${DATA0}/sal_medatlas_nemo4.nc data_1m_salinity_nomask.nc
+ln -fs ${DATA0}/theta_SDN_V3_nemo.nc data_1m_potential_temperature_nomask.nc
+ln -fs ${DATA0}/sal_SDN_V3_nemo.nc data_1m_salinity_nomask.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link Rivers file
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#ln -fs ${DATA0}/runoff_MFS_positive_EAS1_v1.nc runoff_1m_nomask.nc
 ln -fs ${DATA0}/runoff_MFS_positive.nc runoff_1m_nomask.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -134,8 +138,8 @@ fi
 if [ $incasenotfirst -eq 1 ]; then
 
    #INCASENOTFIRST
-   check_file ${R_SORTIE_OCE}/restart.obc_${TSD}${TSH}
-   ln -fs ${R_SORTIE_OCE}/restart.obc_${TSD}${TSH} restart.obc
+   #check_file ${R_SORTIE_OCE}/restart.obc_${TSD}${TSH}
+   #ln -fs ${R_SORTIE_OCE}/restart.obc_${TSD}${TSH} restart.obc
 
    if [ -f ${R_SORTIE_OCE}/restart.nc_${TSD}${TSH} ]; then
       check_file ${R_SORTIE_OCE}/restart.nc_${TSD}${TSH} 
@@ -155,20 +159,10 @@ if [ $incasenotfirst -eq 1 ]; then
 fi
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# link LOBC files 
+# link DBY files 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ln -fs ${DATA0}/LOBC_CLIM/obcwest_TS_merc_clim4.nc obcwest_TS.nc
-ln -fs ${DATA0}/LOBC_CLIM/obcwest_U_merc_clim4.nc  obcwest_U.nc
-ln -fs ${DATA0}/LOBC_CLIM/obcwest_V_merc_clim4.nc  obcwest_V.nc
-
-ln -fs ${DATA0}/LOBC_CLIM/obcnorth_TS_merc_clim4.nc obcnorth_TS.nc
-ln -fs ${DATA0}/LOBC_CLIM/obcnorth_V_merc_clim4.nc  obcnorth_V.nc
-ln -fs ${DATA0}/LOBC_CLIM/obcnorth_U_merc_clim4.nc  obcnorth_U.nc
-
-ln -fs ${DATA0}/LOBC_CLIM/obcsouth_TS_merc_clim4.nc obcsouth_TS.nc
-ln -fs ${DATA0}/LOBC_CLIM/obcsouth_V_merc_clim4.nc obcsouth_V.nc
-ln -fs ${DATA0}/LOBC_CLIM/obcsouth_U_merc_clim4.nc obcsouth_U.nc
+ln -fs ${DATA2}/BDY_DAILY/coordinates.bdy.nc coordinates.bdy.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link WIND
@@ -181,6 +175,7 @@ mkdir -p ${R_TMP}/wind/work ; rm -f ${R_TMP}/wind/work/*
 
 cd ${R_TMP}/wind/in 
 touch ${R_TMP}/wind/in/startday.$TSD
+touch ${R_TMP}/wind/in/procday.$ProdCycle
 EndDay=$TED
 if [ $TED -eq $TSD ] ; then
     EndDay=`jday.py $TED +1`  # per risolvere bug esperimenti 12h
@@ -189,52 +184,46 @@ else
     touch ${R_TMP}/wind/in/endday.$TED
 fi
 
-if [ $TED -ge $ProdCycle ] ; then
-   echo "FORECAST"
-   if [ $TSD -lt $ProdCycle ] ; then
-      for hs in 00 03 06 09 12 15 18 21 ; do
-          name=`echo ingv_${TSD}${hs}.grb.bz2`
-          file=`find ${DATA1}/COSMO -name $name | tail -1`
-          if [ _$file != "_" ]; then
-             echo link to $file
-             ln -fs $file
-          fi
-      done
-   fi
-   for hs in 00 03 06 09 ; do
-       name=`echo ingv_${ProdCycle}${hs}.grb.bz2`
-       file=`find ${DATA1}/COSMO -name $name | tail -1`
-       if [ _$file != "_" ]; then
-           echo link to $file
-           ln -fs $file
-       fi
-   done
-   for file in `ls -1 ${DATA1}/COSMO/$ProdCycle/COSMOME_${ProdCycle}12.tar.bz2` ; do
-       echo link to $file
-       ln -s $file
+if [ $TED -ge $ProdCycle ] ; then 
+   
+   for file in `ls -1 ${DATA1}/ECMWF18/NETCDF/$ProdCycle/*.nc` ; do
+       ln -s $file 
        done
-   sh $R_EXPER/cosmo2NEMO-fc.sh  ${R_TMP}/wind/in/ ${R_TMP}/wind/work/ ${R_TMP}/wind/work/ ${R_TMP}/wind/
 
+   sh $R_EXPER/ecmwf2NEMO-fc.sh  ${R_TMP}/wind/in ${R_TMP}/wind/work ${R_TMP}/wind/work ${R_TMP}/wind
+     
+         
+     if [ $TSD -ge `jday.py $ProdCycle +0` ] &&  [ $TSD -le `jday.py $ProdCycle +2` ] ; then
+        id0=`echo $TSD | cut -c 7-8`
+        id1=`echo $TED | cut -c 7-8`
+        name=`find ${R_TMP}/wind/ -name ecmwf_y*d${id0}.nc_8rec`
+        if [[ ! -z $name ]] ; then
+          mv $name `dirname $name`/`basename $name | cut -d_ -f1-2`
+        fi
+        name=`find ${R_TMP}/wind/  -name ecmwf_y*d${id1}.nc_8rec`
+        if [[ ! -z $name ]] ; then
+          mv $name `dirname $name`/`basename $name | cut -d_ -f1-2`
+        fi
+     fi
+    
 else
    day=$TSD
-   echo "ANALYSIS"
    #while [ $day -ne `jday.py $TED +1` ] ; do
    while [ $day -le $EndDay ] ; do
         day1=`jday.py $day +1`
-        for hs in 00 03 06 09 12 15 18 21 ; do
-            name=`echo ingv_${day}${hs}.grb.bz2`
-            file=`find ${DATA1}/COSMO -name $name | tail -1`
-            if [ _$file != "_" ]; then
-                echo link to $file
-                ln -fs $file
-            fi
-        done
+        name=`echo $day-ECMWF---*-MEDATL-b${day1}_an-fv05.00.nc`
+        file=`find ${DATA1}/ECMWF18/NETCDF -name $name | tail -1`
+        if [ _$file = "_" ]; then
+           name=`echo $day-ECMWF---*-MEDATL-b${day}_antmp-fv05.00.nc`
+           file=`find ${DATA1}/ECMWF18/NETCDF -name $name | tail -1`
+        fi
+        echo link to $file
+        ln -fs $file
         day=$day1
-   done
-
-   sh $R_EXPER/cosmo2NEMO-an.sh  ${R_TMP}/wind/in/ ${R_TMP}/wind/work/ ${R_TMP}/wind/work/ ${R_TMP}/wind/
+        done
+  
+   sh $R_EXPER/ecmwf2NEMO-an.sh  ${R_TMP}/wind/in ${R_TMP}/wind/work ${R_TMP}/wind/work ${R_TMP}/wind
 fi
-
 
 cd ${R_TMP}/wind
 
@@ -311,12 +300,17 @@ if [ _$INSITUActive == '_yes' ] ; then
    rm ${R_TMP}/insitu/work/startday.$TSD ${R_TMP}/insitu/work/endday.$TED
    rmdir ${R_TMP}/insitu/work
    rmdir ${R_TMP}/insitu
-
-   ln -fs $GRDINP/MFS_16_72_n.nc mdt.nc
+   
+   if [ $TSD -ge 20140324 ] ; then
+      ln -fs $GRDINP/mdt_v2.nc mdt.nc
+   else
+      ln -fs $GRDINP/MFS_16_72_n.nc mdt.nc
+   fi
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link corrections
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
       
       if [ $incasenotfirst -eq 1 ]; then
           if [ -f $R_SORTIE_OCE/corr.nc_${TSD}${TSH} ] ; then
@@ -342,16 +336,31 @@ if [ _$INSITUActive == '_yes' ] ; then
 	nyear=`expr $yyyymm / 100`
 	nmonth=`expr $yyyymm - $nyear \* 100`
 
-   if test $nmonth -le 03 ; then
-      ln -fs $EOFINP/WINTER_Med_eof.nc eofs.nc
-   elif test $nmonth -le 06; then
-      ln -fs $EOFINP/SPRING_Med_eof.nc eofs.nc
-   elif test $nmonth -le 09; then
-      ln -fs $EOFINP/SUMMER_Med_eof.nc eofs.nc
-   elif test $nmonth -le 12; then
-      ln -fs $EOFINP/AUTUMN_Med_eof.nc eofs.nc
+   if test $nmonth -eq 01 ; then
+      ln -fs $EOFINP/eof01.nc eofs.nc
+   elif test $nmonth -eq 02; then
+      ln -fs $EOFINP/eof02.nc eofs.nc
+   elif test $nmonth -eq 03; then
+      ln -fs $EOFINP/eof03.nc eofs.nc
+   elif test $nmonth -eq 04; then
+      ln -fs $EOFINP/eof04.nc eofs.nc
+   elif test $nmonth -eq 05; then
+      ln -fs $EOFINP/eof05.nc eofs.nc
+   elif test $nmonth -eq 06; then
+      ln -fs $EOFINP/eof06.nc eofs.nc
+   elif test $nmonth -eq 07; then
+      ln -fs $EOFINP/eof07.nc eofs.nc
+   elif test $nmonth -eq 08; then
+      ln -fs $EOFINP/eof08.nc eofs.nc
+   elif test $nmonth -eq 09; then
+      ln -fs $EOFINP/eof09.nc eofs.nc
+   elif test $nmonth -eq 10; then
+      ln -fs $EOFINP/eof10.nc eofs.nc
+   elif test $nmonth -eq 11 ; then
+      ln -fs $EOFINP/eof11.nc eofs.nc
+   elif test $nmonth -eq 12; then
+      ln -fs $EOFINP/eof12.nc eofs.nc
    fi
-
 fi #end of INSITUActive
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
