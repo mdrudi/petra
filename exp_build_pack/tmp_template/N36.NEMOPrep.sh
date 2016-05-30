@@ -78,6 +78,8 @@ touch namelist_cfg
 cp ${R_EXPER}/field_def.xml  field_def.xml
 cp ${R_EXPER}/iodef.xml      iodef.xml
 cp ${R_EXPER}/domain_def.xml domain_def.xml
+cp ${R_EXPER}/rebuild        rebuild
+cp ${R_EXPER}/flio_rbld.exe  flio_rbld.exe
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 # Link static variables (ECMWF land-sea mask and bathymetry)
@@ -89,15 +91,18 @@ ln -fs ${DATA0}/bathy_meter_open_nemo3.nc bathy_meter.nc
 # Link climatology for relaxation
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-ln -fs ${DATA0}/theta_SDN_V3_nemo.nc data_1m_potential_temperature_nomask.nc
-ln -fs ${DATA0}/sal_SDN_V3_nemo.nc data_1m_salinity_nomask.nc
+
+# N.B.: eas1_SIM_*_y2013.nc are temperature and salinity fields extracted from 20130101 EAS1
+#       output in simulation mode
+ln -fs ${DATA0}/eas1_SIM_theta_y2013.nc  data_1m_potential_temperature_nomask_y2013.nc
+ln -fs ${DATA0}/eas1_SIM_sal_y2013.nc  data_1m_salinity_nomask_y2013.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link Rivers file
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#ln -fs ${DATA0}/runoff_MFS_positive_EAS1_v1.nc runoff_1m_nomask.nc
-ln -fs ${DATA0}/runoff_MFS_positive.nc runoff_1m_nomask.nc
+ln -fs ${DATA0}/runoff_MFS_positive_EAS1_v1.nc runoff_1m_nomask.nc
+#ln -fs ${DATA0}/runoff_MFS_positive.nc runoff_1m_nomask.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link restart files (ocean and lateral open boundary)
@@ -107,7 +112,7 @@ while read col1 ; do
     #echo $col1
     case `echo $col1 |awk '{print $1}'` in
        phys_rst) phys_rst_TEO=`echo $col1 |awk '{print $2}'` ;;
-       phys_obc) phys_obc_TEO=`echo $col1 |awk '{print $2}'`  ;;
+#       phys_obc) phys_obc_TEO=`echo $col1 |awk '{print $2}'`  ;;
        wave_rst) wave_rst_TEO=`echo $col1 |awk '{print $2}'`  ;;
        phys_cor) phys_cor_TEO=`echo $col1 |awk '{print $2}'`  ;;
     esac 
@@ -159,10 +164,11 @@ if [ $incasenotfirst -eq 1 ]; then
 fi
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# link DBY files 
+# link BDY files 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ln -fs ${DATA2}/BDY_DAILY/coordinates.bdy.nc coordinates.bdy.nc
+#ln -fs ${DATA2}/BDY_DAILY/coordinates.bdy.nc coordinates.bdy.nc
+ln -fs ${DATA0}/coordinates.bdy.nc coordinates.bdy.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link WIND

@@ -19,7 +19,7 @@ while read col1 col2 ; do
     echo $col1 - $col2
     case `echo $col1 |awk '{print $1}'` in
        phys_rst) phys_rst_TEO=`echo $col2 |awk '{print $1}'` ;;
-       phys_obc) phys_obc_TEO=`echo $col2 |awk '{print $1}'`  ;;
+#       phys_obc) phys_obc_TEO=`echo $col2 |awk '{print $1}'`  ;;
        wave_rst) wave_rst_TEO=`echo $col2 |awk '{print $1}'`  ;;
        phys_cor) phys_cor_TEO=`echo $col2 |awk '{print $1}'`  ;;
     esac 

@@ -31,14 +31,17 @@ CallRebuild() {
             eval $Cmd
          done
 ###### Just To Manage a Bug in NEMO - END
-         Cmd="time ${ExpDir}/tmp/rebuild -o ${FileMasterCRT}.nc ${FileMasterCRT}_????.nc"
+         Cmd="time ${ExpDir}/tmp/rebuild_nemo ${FileMasterCRT} ${NumFilesCR}"
          echo $Cmd
          eval $Cmd
          if [ -f ${FileMasterCRT}.nc ] ; then
             Cmd="rm ${FileMasterCRT}_????.nc"
             echo $Cmd
             eval $Cmd
-            fi
+            Cmd="gzip ${FileMasterCRT}.nc"
+            echo $Cmd
+            eval $Cmd
+         fi
       fi
    done
 }
@@ -46,5 +49,6 @@ CallRebuild() {
 date -u
 CallRebuild
 echo $LSB_JOBID > ${ExpDir}/output/indexR_${ACTUALINDEX}.jobid
+rm nam_rebuild
 date -u
 

@@ -91,7 +91,7 @@ while read col1 ; do
     echo $col1
     case `echo $col1 |awk '{print $1}'` in
        phys_rst) phys_rst_TEO=`echo $col1 |awk '{print $2}'` ;;
-       phys_obc) phys_obc_TEO=`echo $col1 |awk '{print $2}'`  ;;
+#       phys_obc) phys_obc_TEO=`echo $col1 |awk '{print $2}'`  ;;
        wave_rst) wave_rst_TEO=`echo $col1 |awk '{print $2}'`  ;;
        phys_cor) phys_cor_TEO=`echo $col1 |awk '{print $2}'`  ;;
     esac 
@@ -136,11 +136,11 @@ if [ $timing_start_from_restart = "file" ]; then
       exit 1
    fi
    check_dimfile $phys_rst $phys_rst_TEO
-   if [ ! -f $phys_obc ]; then
-      echo `basename $0` - file does not exist : $phys_obc
-      exit 1
-   fi
-   check_dimfile $phys_obc $phys_obc_TEO
+#   if [ ! -f $phys_obc ]; then
+#      echo `basename $0` - file does not exist : $phys_obc
+#      exit 1
+#   fi
+#   check_dimfile $phys_obc $phys_obc_TEO
    restart_kt=`ncdump -v kt $phys_rst | grep "kt =" | cut -d" " -f 4`
    restart_ndastp=`ncdump -v ndastp $phys_rst | grep "ndastp =" | cut -d" " -f 4`
    first_time_step=`expr $restart_kt + 1`
@@ -158,7 +158,7 @@ if [ $timing_start_from_restart = "file" ]; then
    echo $Cmd
    eval $Cmd
 #   Cmd="cp -p $phys_obc $WorkingDir/output/restart.obc_${timing_start_time}${timing_start_hour}"
-   Cmd="ln -sf $phys_obc $WorkingDir/output/restart.obc_${timing_start_time}${timing_start_hour}" #BUG ?
+#   Cmd="ln -sf $phys_obc $WorkingDir/output/restart.obc_${timing_start_time}${timing_start_hour}" #BUG ?
    echo $Cmd
    eval $Cmd
    if [ ! _$wave_rst = "_" ]; then
@@ -288,6 +288,7 @@ do
              -e "s/CLIM-INIT/true/" \
              -e "s/RNRDTTAG/$NEMOTimestep/" \
              -e "s/NNWRITETAG/$nnWriteTag/" \
+             -e "s*WORKINGDIR*$WorkingDir*" \
              $NEMO_NL > $WorkingDir/tmp/namelist_${actual_index}
          fi
 
@@ -304,6 +305,7 @@ do
              -e "s/CLIM-INIT/false/" \
              -e "s/RNRDTTAG/$NEMOTimestep/" \
              -e "s/NNWRITETAG/$nnWriteTag/" \
+             -e "s*WORKINGDIR*$WorkingDir*" \
              $NEMO_NL > $WorkingDir/tmp/namelist_${actual_index}
          fi
 
