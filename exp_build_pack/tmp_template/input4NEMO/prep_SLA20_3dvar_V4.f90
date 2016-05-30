@@ -248,7 +248,7 @@
                 open(12,file=trim(outdir)//'/'//date//'.SLA.dat', &
                   form='formatted',position='append')
                    write(12,"(5f10.5,i5)") alon, alat, rday-rinday, &
-                             rval-rdac(ar), 0.02, indexsat
+                             rval+rdac(ar), 0.02, indexsat
                   close(12)
 !                endif
               endif
