@@ -64,6 +64,9 @@ PathJday=`which jday.py`
 cp -p $PathJday $WorkingDir/tmp/
 PathHoursSince=`which hours_since_1970010100.py`
 cp -p $PathHoursSince $WorkingDir/tmp/
+PathSecCounter=`which sec_counter.py`
+cp -p $PathSecCounter $WorkingDir/tmp/
+
 
 if [ ! -f $SYS.tocopylist.txt ]; then
       echo `basename $0` - file does not exist : $SYS.tocopylist.txt
@@ -225,9 +228,9 @@ do
 
 
 
-   JobExpOut=$WorkingDir/tmp/Job_EXP_${actual_index}
+   JobExpOut=$WorkingDir/tmp/Job_EXP_P${actual_index}
 
-   sh tmp_template/${JobType}_prefix.sh $nodes $cpn $QueueNameNemo ${name}_${actual_index} $actual_index > ${JobExpOut} 
+   sh tmp_template/${JobType}_prefix.sh $nodes $cpn $QueueNameNemo ${name}_P${actual_index} P$actual_index > ${JobExpOut} 
 
    echo                                 >> ${JobExpOut}
    echo "WORKINGDIR=${WorkingDir}"      >> ${JobExpOut}
@@ -254,9 +257,9 @@ do
 
 
 
-   JobExpOut=$WorkingDir/tmp/Job_EXP_${actual_index}R
+   JobExpOut=$WorkingDir/tmp/Job_EXP_R${actual_index}
 
-   sh tmp_template/${JobType}_prefix.sh $nodes 1 $QueueNameNemo ${name}_${actual_index}R ${actual_index}R > ${JobExpOut}
+   sh tmp_template/${JobType}_prefix.sh $nodes 1 $QueueNameNemo ${name}_R${actual_index} R${actual_index} > ${JobExpOut}
 
    echo                                 >> ${JobExpOut}
    echo "WORKINGDIR=${WorkingDir}"      >> ${JobExpOut}

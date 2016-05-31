@@ -21,9 +21,13 @@
 # incasenotfirst
 # ProductionCycle  --> generated in case not defined by include
 
-source /etc/profile.d/modules.sh
-module load intel
-module load cdo
+echo "module list : "
+module list
+
+echo
+
+export LD_LIBRARY_PATH
+echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 
 PATH=${WORKINGDIR}/tmp:$PATH
 
@@ -35,8 +39,10 @@ PATH=${WORKINGDIR}/tmp:$PATH
 date
 set -vx
 
+rm -Rf ${WORKINGDIR}/model
+mkdir ${WORKINGDIR}/model
 cd ${WORKINGDIR}/model
-rm -f ${WORKINGDIR}/model/*
+
 
 echo $LSB_JOBID > index_${ACTUALINDEX}.jobid
 MpiLogFile=${WORKINGDIR}/output/mpiexec.log_${LSB_JOBID}_${TED}${TEH}
@@ -62,17 +68,23 @@ fi
 ERRORNP=0
 ERRORWP=0
 
+sec_counter.py TagSecCounterPA_init
+
 if [ $NemoActive -eq 1 ]; then
    sh ../tmp/$SYS.NEMOPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $NEMO_DATA0 $NEMO_DATA1 $NEMO_DATA2 $ACTUALINDEX $nemo_n_mpi_proc $incasenotfirst $INSITUActive $SSTActive
    LastErrornp=$?
    ERRORNP=`expr $ERRORNP + $LastErrornp`
    fi
 
+sec_counter.py TagSecCounterPB_nprep_done
+
 if [ $WwActive -eq 1 ]; then
    sh ../tmp/$SYS.WWPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $WW_DATAIN $NEMO_DATA1 $incasenotfirst
    LastErrorwp=$?
    ERRORWP=`expr $ERRORWP + $LastErrorwp`
    fi
+
+sec_counter.py TagSecCounterPC_wwprep_done
 
 if [ $ERRORNP -ne 0 ]; then
    echo "ERROR IN $SYS.NEMOPrep.sh"
@@ -106,8 +118,9 @@ if [ ! $NemoActive -eq 1 ] && [ $WwActive -eq 1 ]; then
 
 date -u > ${MpiLogFile} 
 
-#time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
-mpiexec.hydra $MpiExecApp  >> ${MpiLogFile} 2>&1 
+$TagMPIRUN $MpiExecApp  >> ${MpiLogFile} 2>&1 
+
+sec_counter.py TagSecCounterPD_parallel_done
 
 echo "#### PHYS WAVE DONE" >> ${MpiLogFile}
 
@@ -117,12 +130,14 @@ if [ _$INSITUActive = "_yes" ]; then
    cp -p ${WORKINGDIR}/tmp/var_3d_nml var_3d_nml
 
    var3d_n_mpi_proc=`expr $nemo_n_mpi_proc + $ww_n_mpi_proc`
-   MpiExecApp=" ./var_3d "
+   MpiExecApp="-n $var3d_n_mpi_proc ./var_3d -n "
    #time mpirun -machinefile $LSB_DJOB_HOSTFILE -iface ib0 -wdir ${WORKINGDIR}/model $MpiExecApp >> ${MpiLogFile}
    mpiexec.hydra $MpiExecApp  >> ${MpiLogFile} 2>&1 
    echo "#### 3DVAR DONE" >> ${MpiLogFile}
 
 fi
+
+sec_counter.py TagSecCounterPE_3dvar_done
 
 echo "#### ALL DONE" >> ${MpiLogFile}
 
@@ -142,13 +157,15 @@ if [ $NemoActive -eq 1 ]; then
    ERRORS=`expr $ERRORS + $LastError`
    fi
 
+sec_counter.py TagSecCounterPF_npost_done
+
 if [ $WwActive -eq 1 ]; then
    sh ../tmp/$SYS.WWPost.sh $TSD $TSH $TED $TEH ${WORKINGDIR} $WW_DATAIN
    LastErrorw=$?
    ERRORSW=`expr $ERRORSW + $LastErrorw`
    fi
 
-
+sec_counter.py TagSecCounterPG_wwpost_done
 
 
 

@@ -50,21 +50,18 @@ eval $Cmd
 last_a=`expr ACTUALINDEX - 1`
 echo
 
+cd ${ExpDir}/tmp
+./sec_counter.py TagSecCounterS_init
 
 for aa in `seq 1 $last_a`; do
-
-   #echo Starting index $aa - `date -u `
-   cd ${ExpDir}/tmp
-
-   #bsub<Job_EXP_${aa} 
 
    while [ ! -f ${ExpDir}/model/index_${aa}.done ] && [ ! -f ${ExpDir}/model/index_${aa}.error ]; do
 
       echo Starting index $aa - `date -u `
-      bsub -W 16 -K <Job_EXP_${aa}
+      bsub -W 16 -K <Job_EXP_P${aa}
 
       echo bsub exit code : $?
-
+      ./sec_counter.py TagSecCounterS_pjob_done
       sleep 5
       pexJobId=`cat ${ExpDir}/model/index_${aa}.jobid`
       bhist -l $pexJobId > ${ExpDir}/output/bhist_${aa}_${pexJobId}
@@ -74,20 +71,20 @@ for aa in `seq 1 $last_a`; do
    date -u
    
    if [ $aa -eq 1 ] ; then
-      bsub < Job_EXP_${aa}R
+      bsub < Job_EXP_R${aa}
       #echo job name: `cat Job_EXP_${aa}R | grep "BSUB -J" | awk '{ print $3 }'`
       #sleep 5
       #jobidR=`cat ${ExpDir}/output/indexR_${aa}.jobid`
    else
       a1=`expr $aa - 1`
-      prev_jobname=`cat Job_EXP_${a1}R | grep "BSUB -J" | awk '{ print $3 }'`
+      prev_jobname=`cat Job_EXP_R${a1} | grep "BSUB -J" | awk '{ print $3 }'`
       echo prev job name: $prev_jobname
       prev_jobid=`cat ${ExpDir}/output/indexR_${a1}.jobid`
       echo prev job id: $prev_jobid
       if [ $aa -eq $last_a ] ; then
-         bsub -K -w "done(${prev_jobname})" < Job_EXP_${aa}R
+         bsub -K -w "done(${prev_jobname})" < Job_EXP_R${aa}
       else
-         bsub -w "done(${prev_jobname})" < Job_EXP_${aa}R
+         bsub -w "done(${prev_jobname})" < Job_EXP_R${aa}
       #sleep 5
       #jobidR=`cat ${ExpDir}/output/indexR_${aa}.jobid`
       fi
@@ -127,7 +124,7 @@ if [ -f restart.nc_TEDTEH ] ; then
     fi
 
 while [ ! -f ${ExpDir}/output/indexR_${last_a}.jobid ] ; do
-      Cmd="waiting `cat ${ExpDir}/tmp/Job_EXP_${last_a}R | grep 'BSUB -J' | awk '{ print $3 }'`"
+      Cmd="waiting `cat ${ExpDir}/tmp/Job_EXP_R${last_a} | grep 'BSUB -J' | awk '{ print $3 }'`"
       echo $Cmd    
       sleep 60
 done

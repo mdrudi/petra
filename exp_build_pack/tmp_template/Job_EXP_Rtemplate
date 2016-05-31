@@ -8,9 +8,6 @@ ExpDir=${WORKINGDIR}
 
 set -vx
 
-source /etc/profile.d/modules.sh
-module load intel
-
 CallRebuild() {
    Cmd="cd ${ExpDir}/output"
    echo $Cmd
@@ -38,10 +35,7 @@ CallRebuild() {
             Cmd="rm ${FileMasterCRT}_????.nc"
             echo $Cmd
             eval $Cmd
-            Cmd="gzip ${FileMasterCRT}.nc"
-            echo $Cmd
-            eval $Cmd
-         fi
+            fi
       fi
    done
 }
@@ -49,6 +43,5 @@ CallRebuild() {
 date -u
 CallRebuild
 echo $LSB_JOBID > ${ExpDir}/output/indexR_${ACTUALINDEX}.jobid
-rm nam_rebuild
 date -u
 
