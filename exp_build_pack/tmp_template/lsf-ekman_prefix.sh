@@ -19,3 +19,4 @@ echo export PATH=/srv/intel/impi/4.1.0.024/intel64/bin:$PATH
 echo export I_MPI_HYDRA_BOOTSTRAP=lsf
 echo export I_MPI_HYDRA_BRANCH_COUNT=`expr $CPUPN / 16` \#64 is number of hosts, i.e., 1024/16
 echo export I_MPI_LSF_USE_COLLECTIVE_LAUNCH=1
+echo export TagMPIRUN=mpiexec.hydra

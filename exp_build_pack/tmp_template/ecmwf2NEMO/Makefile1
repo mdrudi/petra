@@ -38,7 +38,7 @@ EXTLIB = -L/srv/lib/netcdf-last/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lcurl
 
 
 
-SRC = seaoverland_v5.F90
+SRC = seaoverland_v6.F90
 
 OBJS = $(SRC:.F90=.o)
 EXEC = seaoverland.exe #$(SRC:.F90=.exe)

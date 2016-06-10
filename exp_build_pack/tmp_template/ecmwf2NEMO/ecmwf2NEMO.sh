@@ -18,7 +18,7 @@ SeaOverLand () {
 
 for par in u10 v10 clc msl t2 rh precip ; do
 
-   Cmd="$BinDir/seaoverland.exe $1 $par 489 145 $3 $1 LSM "
+   Cmd="$BinDir/seaoverland.exe $1 $par 489 145 $3 61 $1 LSM "
    echo $Cmd
    eval $Cmd
 

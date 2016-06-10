@@ -54,7 +54,7 @@ R_SORTIE_OCE=$path_s/output
 R_TMP=$path_s/model
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -d ${R_TMP} ] || mkdir ${R_TMP}
+#[ -d ${R_TMP} ] || mkdir ${R_TMP}
 cd ${R_TMP}
 #rm *nc
 
@@ -233,11 +233,11 @@ fi
 
 cd ${R_TMP}/wind
 
-rm -f  ${R_TMP}/wind/in/*   ; rmdir  ${R_TMP}/wind/in   
-rm -f  ${R_TMP}/wind/work/* ; rmdir  ${R_TMP}/wind/work
+#rm -f  ${R_TMP}/wind/in/*   ; rmdir  ${R_TMP}/wind/in   
+#rm -f  ${R_TMP}/wind/work/* ; rmdir  ${R_TMP}/wind/work
 
 
-for file in `ls ${DATA0}/ECMWF_nc/*reshape* ${DATA0}/ECMWF_nc/precip_cmap.nc `; do
+for file in `ls ${DATA0}/reshape_ecmwf* `; do
    ln -fs $file
    done   
 
@@ -259,13 +259,13 @@ if [ _$SSTActive == '_yes' ] ; then
    endp1=`jday.py $TED +1`
    while [ $idate -le $endp1  ] ; do 
       name=`echo  ${idate}000000-GOS-L4_GHRSST-SSTfnd-OISST_HR_NRT-MED-v02.0-fv02.0.nc`
-      cmd=`find ${DATA1}/SST_L4 -name $name `
+      cmd=`find ${DATA1}/SST_L4/ -name $name `
       cnt=1
       while [ _$cmd == '_' -a $cnt -le 4 ] ; do
             datebefore=`jday.py $idate -$cnt`
             echo $name 'not found: linking sst of '$datebefore
             pname=`echo  ${datebefore}000000-GOS-L4_GHRSST-SSTfnd-OISST_HR_NRT-MED-v02.0-fv02.0.nc` 
-            cmd=` find ${DATA1}/SST_L4 -name $pname `
+            cmd=` find ${DATA1}/SST_L4/ -name $pname `
             cnt=`expr $cnt + 1`  
       done
       
