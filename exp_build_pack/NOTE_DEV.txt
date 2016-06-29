@@ -1,0 +1,11 @@
+*) archiviazione e compressione automatica degli output
+*) eliminazione automatica restart intermedi
+*) decompressione automatica file di input compressi
+*) rebuild restart con un job
+*) creare configurazione senza link a condizioni iniziali
+*) scrivere tabella degli ID che vengono sostituiti in namelist
+*) provare l'utilizzo delle direttive LSF per fissare le dipendenze tra i job
+*) inserire i sec_counter
+*) politiche rimozione restart ed output, in caso sia un test
+
+

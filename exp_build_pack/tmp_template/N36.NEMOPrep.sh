@@ -92,10 +92,10 @@ ln -fs ${DATA0}/bathy_meter_open_nemo3.nc bathy_meter.nc
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 
-# N.B.: eas1_SIM_*_y2013.nc are temperature and salinity fields extracted from 20130101 EAS1
+# N.B.: eas1_SIM_*_y2012.nc are temperature and salinity fields extracted from 20121231 EAS1
 #       output in simulation mode
-ln -fs ${DATA0}/eas1_SIM_theta_y2013.nc  data_1m_potential_temperature_nomask_y2013.nc
-ln -fs ${DATA0}/eas1_SIM_sal_y2013.nc  data_1m_salinity_nomask_y2013.nc
+ln -fs ${DATA0}/eas1_SIM_theta_y2012.nc  data_1m_potential_temperature_nomask_y2012.nc
+ln -fs ${DATA0}/eas1_SIM_sal_y2012.nc  data_1m_salinity_nomask_y2012.nc
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # link Rivers file

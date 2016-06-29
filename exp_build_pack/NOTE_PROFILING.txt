@@ -1,0 +1,5 @@
+profiling jobs : ls -1rt output/adout_P* | delta.sh TagSec
+profiling run : ls eas1_t0qua/log.txt | delta.sh TagSec | tr "," "\n"
+wait time : how_wait.sh
+running time : how_long.sh
+wait+running time : how_real.sh
