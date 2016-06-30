@@ -162,8 +162,8 @@ if [ $timing_start_from_restart = "file" ]; then
    eval $Cmd
 #   Cmd="cp -p $phys_obc $WorkingDir/output/restart.obc_${timing_start_time}${timing_start_hour}"
 #   Cmd="ln -sf $phys_obc $WorkingDir/output/restart.obc_${timing_start_time}${timing_start_hour}" #BUG ?
-   echo $Cmd
-   eval $Cmd
+#   echo $Cmd
+#   eval $Cmd
    if [ ! _$wave_rst = "_" ]; then
       if [ -f $wave_rst ]; then
          check_dimfile $wave_rst $wave_rst_TEO

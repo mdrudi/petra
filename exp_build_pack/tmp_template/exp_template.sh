@@ -55,52 +55,54 @@ cd ${ExpDir}/tmp
 
 for aa in `seq 1 $last_a`; do
 
-   while [ ! -f ${ExpDir}/model/index_${aa}.done ] && [ ! -f ${ExpDir}/model/index_${aa}.error ]; do
-
+   while [ ! -f ${ExpDir}/model/index_P${aa}.done ] && [ ! -f ${ExpDir}/model/index_P${aa}.error ]; do
       echo Starting index $aa - `date -u `
-      bsub -W 16 -K <Job_EXP_P${aa}
+      bsub -W 20 -K <Job_EXP_P${aa}
 
       echo bsub exit code : $?
       ./sec_counter.py TagSecCounterS_pjob_done
       sleep 5
-      pexJobId=`cat ${ExpDir}/model/index_${aa}.jobid`
-      bhist -l $pexJobId > ${ExpDir}/output/bhist_${aa}_${pexJobId}
-
+      pexJobId=`cat ${ExpDir}/model/index_P${aa}.jobid`
+      bhist -l $pexJobId > ${ExpDir}/output/bhist_P${aa}_${pexJobId}
    done
 
-   date -u
-   
-   if [ $aa -eq 1 ] ; then
-      bsub < Job_EXP_R${aa}
+   #date -u
+   #if [ $aa -eq 1 ] ; then
+   #   bsub < Job_EXP_R${aa}
       #echo job name: `cat Job_EXP_${aa}R | grep "BSUB -J" | awk '{ print $3 }'`
       #sleep 5
       #jobidR=`cat ${ExpDir}/output/indexR_${aa}.jobid`
-   else
-      a1=`expr $aa - 1`
-      prev_jobname=`cat Job_EXP_R${a1} | grep "BSUB -J" | awk '{ print $3 }'`
-      echo prev job name: $prev_jobname
-      prev_jobid=`cat ${ExpDir}/output/indexR_${a1}.jobid`
-      echo prev job id: $prev_jobid
-      if [ $aa -eq $last_a ] ; then
-         bsub -K -w "done(${prev_jobname})" < Job_EXP_R${aa}
-      else
-         bsub -w "done(${prev_jobname})" < Job_EXP_R${aa}
+   #else
+   #   a1=`expr $aa - 1`
+   #   prev_jobname=`cat Job_EXP_R${a1} | grep "BSUB -J" | awk '{ print $3 }'`
+   #   echo prev job name: $prev_jobname
+   #   prev_jobid=`cat ${ExpDir}/output/indexR_${a1}.jobid`
+   #   echo prev job id: $prev_jobid
+   #   if [ $aa -eq $last_a ] ; then
+   #      bsub -K -w "done(${prev_jobname})" < Job_EXP_R${aa}
+   #   else
+   #      bsub -w "done(${prev_jobname})" < Job_EXP_R${aa}
       #sleep 5
       #jobidR=`cat ${ExpDir}/output/indexR_${aa}.jobid`
-      fi
-   fi   
+   #   fi
+   #fi   
    date -u
 
    if [ -f ${ExpDir}/model/index_${aa}.error ]; then
-      echo ERROR - `date -u`
+      echo End index $aa - ERROR - `date -u`
       echo
       exit
    else
-      echo Completed index $aa - `date -u`
+      bsub -K < Job_EXP_R${aa} &
+      echo End index $aa - COMPLEted - `date -u`
       echo
    fi
 
 done
+
+echo Wait for end of all sub-process - `date -u`
+wait
+echo End of all sub-process - `date -u`
 
 Cmd="cd ${ExpDir}/output"
 echo $Cmd
@@ -123,12 +125,12 @@ if [ -f restart.nc_TEDTEH ] ; then
     eval $Cmd
     fi
 
-while [ ! -f ${ExpDir}/output/indexR_${last_a}.jobid ] ; do
-      Cmd="waiting `cat ${ExpDir}/tmp/Job_EXP_R${last_a} | grep 'BSUB -J' | awk '{ print $3 }'`"
-      echo $Cmd    
-      sleep 60
-done
+#while [ ! -f ${ExpDir}/output/indexR_${last_a}.jobid ] ; do
+#      Cmd="waiting `cat ${ExpDir}/tmp/Job_EXP_R${last_a} | grep 'BSUB -J' | awk '{ print $3 }'`"
+#      echo $Cmd    
+#      sleep 60
+#done
 
 
-date -u
+echo End of rebuild - `date -u`
 

@@ -44,7 +44,7 @@ mkdir ${WORKINGDIR}/model
 cd ${WORKINGDIR}/model
 
 
-echo $LSB_JOBID > index_${ACTUALINDEX}.jobid
+echo $LSB_JOBID > index_P${ACTUALINDEX}.jobid
 MpiLogFile=${WORKINGDIR}/output/mpiexec.log_${LSB_JOBID}_${TED}${TEH}
 
 
@@ -178,9 +178,9 @@ cd ${WORKINGDIR}/model
 
 if [ $ERRORS -eq 0 -a $ERRORSW -eq 0 ]; then
 #   mv -f ${WORKINGDIR}/model/mpiexec.log ${WORKINGDIR}/output/mpiexec.log_${TED}${TEH}
-   touch index_${ACTUALINDEX}.done
+   touch index_P${ACTUALINDEX}.done
    else
-   touch index_${ACTUALINDEX}.error
+   touch index_P${ACTUALINDEX}.error
    exit 1
    fi
 
