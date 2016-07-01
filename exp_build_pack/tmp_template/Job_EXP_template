@@ -1,6 +1,5 @@
 
 #from include
-# SYS
 # NEMO
 # nemo_n_mpi_proc
 # NEMO_DATA0
@@ -71,7 +70,7 @@ ERRORWP=0
 sec_counter.py TagSecCounterPA_init
 
 if [ $NemoActive -eq 1 ]; then
-   sh ../tmp/$SYS.NEMOPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $NEMO_DATA0 $NEMO_DATA1 $NEMO_DATA2 $ACTUALINDEX $nemo_n_mpi_proc $incasenotfirst $INSITUActive $SSTActive
+   sh ../tmp/NEMOPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $NEMO_DATA0 $NEMO_DATA1 $NEMO_DATA2 $ACTUALINDEX $nemo_n_mpi_proc $incasenotfirst $INSITUActive $SSTActive
    LastErrornp=$?
    ERRORNP=`expr $ERRORNP + $LastErrornp`
    fi
@@ -79,7 +78,7 @@ if [ $NemoActive -eq 1 ]; then
 sec_counter.py TagSecCounterPB_nprep_done
 
 if [ $WwActive -eq 1 ]; then
-   sh ../tmp/$SYS.WWPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $WW_DATAIN $NEMO_DATA1 $incasenotfirst
+   sh ../tmp/WWPrep.sh $TSD $TSH $TED $TEH $ProductionCycle ${WORKINGDIR} $WW_DATAIN $NEMO_DATA1 $incasenotfirst
    LastErrorwp=$?
    ERRORWP=`expr $ERRORWP + $LastErrorwp`
    fi
@@ -87,14 +86,14 @@ if [ $WwActive -eq 1 ]; then
 sec_counter.py TagSecCounterPC_wwprep_done
 
 if [ $ERRORNP -ne 0 ]; then
-   echo "ERROR IN $SYS.NEMOPrep.sh"
-   touch index_${ACTUALINDEX}.error
+   echo "ERROR IN NEMOPrep.sh"
+   touch index_P${ACTUALINDEX}.error
    exit 1
 fi
 
 if [ $ERRORWP -ne 0 ]; then
-   echo "ERROR IN $SYS.WWPrep.sh"
-   touch index_${ACTUALINDEX}.error
+   echo "ERROR IN WWPrep.sh"
+   touch index_P${ACTUALINDEX}.error
    exit 1
 fi
 
@@ -152,7 +151,7 @@ ERRORS=0
 ERRORSW=0
 
 if [ $NemoActive -eq 1 ]; then
-   sh ../tmp/$SYS.NEMOPost.sh  $TED $TEH ${WORKINGDIR} $nemo_n_mpi_proc $ACTUALINDEX $INSITUActive
+   sh ../tmp/NEMOPost.sh  $TED $TEH ${WORKINGDIR} $nemo_n_mpi_proc $ACTUALINDEX $INSITUActive
    LastError=$?
    ERRORS=`expr $ERRORS + $LastError`
    fi
@@ -160,7 +159,7 @@ if [ $NemoActive -eq 1 ]; then
 sec_counter.py TagSecCounterPF_npost_done
 
 if [ $WwActive -eq 1 ]; then
-   sh ../tmp/$SYS.WWPost.sh $TSD $TSH $TED $TEH ${WORKINGDIR} $WW_DATAIN
+   sh ../tmp/WWPost.sh $TSD $TSH $TED $TEH ${WORKINGDIR} $WW_DATAIN
    LastErrorw=$?
    ERRORSW=`expr $ERRORSW + $LastErrorw`
    fi

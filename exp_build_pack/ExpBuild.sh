@@ -4,14 +4,12 @@
 ## This script prepares consecutive simulations
 ## 
 ##  Paolo Oddo           paolo.oddo@bo.ingv.it (ex MAKE_SIMU.sh)
-##  Massimiliano Drudi   massimiliano.drudi@bo.ingv.it
+##  Massimiliano Drudi   massimiliano.drudi@ingv.it
 ####################################################################
 
 . `dirname $0`/../envi.sh
 
-cd `dirname $1`
-#RunDir=`pwd`
-PathDescr=`pwd`/`basename $1`
+PathDescr=`readlink -f $1`
 
 MyPath=`which $0`
 MyDir=`dirname $MyPath`
@@ -68,8 +66,8 @@ PathSecCounter=`which sec_counter.py`
 cp -p $PathSecCounter $WorkingDir/tmp/
 
 
-if [ ! -f $SYS.tocopylist.txt ]; then
-      echo `basename $0` - file does not exist : $SYS.tocopylist.txt
+if [ ! -f $CFG/csf.txt ]; then
+      echo `basename $0` - file does not exist : $CFG/csf.txt
       exit 1
 fi
 IFS=''
@@ -83,23 +81,23 @@ if [ _`echo $line| cut -c1` != "_" -a  _`echo $line| cut -c1` != "_#" ] ; then
   echo $cmd
   eval $cmd
 fi
-done < $SYS.tocopylist.txt
+done < $CFG/csf.txt
 
-if [ ! -f $SYS.dimtable.dat ]; then
-      echo `basename $0` - file does not exist : $SYS.dimtable.dat
-      exit 1
-fi
+#if [ ! -f $SYS.dimtable.dat ]; then
+#      echo `basename $0` - file does not exist : $SYS.dimtable.dat
+#      exit 1
+#fi
 
-while read col1 ; do
-    echo $col1
-    case `echo $col1 |awk '{print $1}'` in
-       phys_rst) phys_rst_TEO=`echo $col1 |awk '{print $2}'` ;;
-#       phys_obc) phys_obc_TEO=`echo $col1 |awk '{print $2}'`  ;;
-       wave_rst) wave_rst_TEO=`echo $col1 |awk '{print $2}'`  ;;
-       phys_cor) phys_cor_TEO=`echo $col1 |awk '{print $2}'`  ;;
-    esac 
-done < $SYS.dimtable.dat
-echo `dirname $0`/$SYS.dimtable.dat
+#while read col1 ; do
+#    echo $col1
+#    case `echo $col1 |awk '{print $1}'` in
+#       phys_rst) phys_rst_TEO=`echo $col1 |awk '{print $2}'` ;;
+##       phys_obc) phys_obc_TEO=`echo $col1 |awk '{print $2}'`  ;;
+#       wave_rst) wave_rst_TEO=`echo $col1 |awk '{print $2}'`  ;;
+#       phys_cor) phys_cor_TEO=`echo $col1 |awk '{print $2}'`  ;;
+#    esac 
+#done < $SYS.dimtable.dat
+#echo `dirname $0`/$SYS.dimtable.dat
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # generating the scripts
@@ -138,7 +136,7 @@ if [ $timing_start_from_restart = "file" ]; then
       echo `basename $0` - file does not exist : $phys_rst
       exit 1
    fi
-   check_dimfile $phys_rst $phys_rst_TEO
+#   check_dimfile $phys_rst $phys_rst_TEO
 #   if [ ! -f $phys_obc ]; then
 #      echo `basename $0` - file does not exist : $phys_obc
 #      exit 1

@@ -1,5 +1,5 @@
 cd `dirname $0`
-DimTable=`ls *.dimtable.dat`
+DimTable=`ls *dimtable.dat`
 cd ..
 ExpDir=`pwd`
 
@@ -38,6 +38,16 @@ else
 fi
 }
 
+post_proc()
+{
+echo Starting index R$aa - `date -u `
+bsub -K < Job_EXP_R${1}
+excode=$?
+echo End index R${1} - `date -u ` , bsub exit code : $excode
+sleep 5
+pexJobId=`cat ${ExpDir}/output/index_R${aa}.jobid`
+bhist -l $pexJobId > ${ExpDir}/output/bhist_R${1}_${pexJobId}
+}
 
 
 echo
@@ -56,10 +66,10 @@ cd ${ExpDir}/tmp
 for aa in `seq 1 $last_a`; do
 
    while [ ! -f ${ExpDir}/model/index_P${aa}.done ] && [ ! -f ${ExpDir}/model/index_P${aa}.error ]; do
-      echo Starting index $aa - `date -u `
+      echo Starting index P$aa - `date -u `
       bsub -W 20 -K <Job_EXP_P${aa}
-
-      echo bsub exit code : $?
+      excode=$?
+      echo End index P${aa} - `date -u ` , bsub exit code : $excode
       ./sec_counter.py TagSecCounterS_pjob_done
       sleep 5
       pexJobId=`cat ${ExpDir}/model/index_P${aa}.jobid`
@@ -86,15 +96,16 @@ for aa in `seq 1 $last_a`; do
       #jobidR=`cat ${ExpDir}/output/indexR_${aa}.jobid`
    #   fi
    #fi   
-   date -u
+   #date -u
 
-   if [ -f ${ExpDir}/model/index_${aa}.error ]; then
-      echo End index $aa - ERROR - `date -u`
+   if [ -f ${ExpDir}/model/index_P${aa}.error ]; then
+      echo End index P$aa - ERROR - `date -u`
       echo
       exit
    else
-      bsub -K < Job_EXP_R${aa} &
-      echo End index $aa - COMPLEted - `date -u`
+      #bsub -K < Job_EXP_R${aa} &
+      post_proc ${aa} &
+      #echo End index P$aa - COMPLEted - `date -u`
       echo
    fi
 

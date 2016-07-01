@@ -10,4 +10,6 @@
 *) bhist dei job di rebuild
 *) wall time in descrittore
 *) documentare tool per analisi prestazioni
+*) procedura di installazione e pulizia roba inutile
+*) spostare rebuild in dir rebuild, e rimuovere file tmp da dir output
 
