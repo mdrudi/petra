@@ -250,7 +250,7 @@ do
    fi
    echo                            >> ${JobExpOut}
 
-   cat tmp_template/Job_EXP_template >> ${JobExpOut}
+   cat tmp_template/Job_EXP_Ptemplate >> ${JobExpOut}
 
 
 

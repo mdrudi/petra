@@ -1,14 +1,12 @@
 *) * archiviazione e compressione automatica degli output
 *) * eliminazione automatica restart intermedi
 *) decompressione automatica file di input compressi
-*) rebuild restart con un job
+*) * rebuild restart con un job
 *) creare configurazione senza link a condizioni iniziali
 *) scrivere tabella degli ID che vengono sostituiti in namelist
 *) * provare l'utilizzo delle direttive LSF per fissare le dipendenze tra i job
-*) assicurare che la fine del processo implichi la fine di tutti i job
 *) politiche rimozione restart ed output, in caso sia un test
-*) bhist dei job di rebuild
-*) wall time in descrittore
+*) * wall time in descrittore
 *) documentare tool per analisi prestazioni
 *) procedura di installazione e pulizia roba inutile
 *) spostare rebuild in dir rebuild, e rimuovere file tmp da dir output
