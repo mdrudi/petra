@@ -25,4 +25,4 @@ echo
 echo START NEW bash SESSION....
 echo
 
-bash
+bash --norc

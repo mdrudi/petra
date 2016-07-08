@@ -20,16 +20,12 @@
 # incasenotfirst
 # ProductionCycle  --> generated in case not defined by include
 
-echo "module list : "
-module list
-
 echo
-
-export LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH
 echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH
-
+echo
 PATH=${WORKINGDIR}/tmp:$PATH
-
+echo PATH=$PATH
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # print echo of commands before and after shell interpretation
