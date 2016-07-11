@@ -223,12 +223,14 @@ do
    first_m1=`expr $actual_time_step \- 1`
    last_p1=`expr $last_step \+ 1`
 
-
+   cpn=0
+   if [ $NEMO = "yes" ]; then cpn=`expr $cpn \+ $nemo_n_mpi_proc`; fi
+   if [ $WW = "yes" ]; then cpn=`expr $cpn \+ $ww_n_mpi_proc`; fi
 
 
    JobExpOut=$WorkingDir/tmp/Job_EXP_P${actual_index}
 
-   sh tmp_template/${JobType}_prefix.sh $nodes $cpn $QueueNameNemo ${name}_P${actual_index} P$actual_index > ${JobExpOut} 
+   sh tmp_template/${JobType}_prefix.sh $cpn $QueueNameP ${name}_P${actual_index} P$actual_index > ${JobExpOut} 
 
    echo                                 >> ${JobExpOut}
    echo "WORKINGDIR=${WorkingDir}"      >> ${JobExpOut}
@@ -257,7 +259,7 @@ do
 
    JobExpOut=$WorkingDir/tmp/Job_EXP_R${actual_index}
 
-   sh tmp_template/${JobType}_prefix.sh $nodes 1 $QueueNameNemo ${name}_R${actual_index} R${actual_index} > ${JobExpOut}
+   sh tmp_template/${JobType}_prefix.sh 1 $QueueNameS ${name}_R${actual_index} R${actual_index} > ${JobExpOut}
 
    echo                                 >> ${JobExpOut}
    echo "WORKINGDIR=${WorkingDir}"      >> ${JobExpOut}

@@ -4,7 +4,7 @@ cd ..
 ExpDir=`pwd`
 
 exec 1> ${ExpDir}/log.txt  2>&1
-
+echo $$ > ${ExpDir}/pid
 
 while read col1 col2 ; do
     echo $col1 - $col2
@@ -108,6 +108,8 @@ for aa in `seq 1 $last_a`; do
       #echo End index P$aa - COMPLEted - `date -u`
       echo
    fi
+
+   while [ -f ${ExpDir}/pause ]; do sleep 60; done
 
 done
 
