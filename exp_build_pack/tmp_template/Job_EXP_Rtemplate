@@ -1,1 +1,92 @@
-Job_EXP_Rtemplate.rad
+
+#from include
+# GZIP
+# NC2_COMPRESSION
+
+#from ExpBuild
+# WorkingDir
+# actual_start_day 
+# actual_end_day
+
+ExpDir=${WORKINGDIR}
+
+set -vx
+
+CallRebuild() {
+   Cmd="cd ${ExpDir}/output"
+   echo $Cmd
+   eval $Cmd
+   ListMasterCR=`ls *_${TSD}_${TED}_grid_T_0000.nc *_${TSD}_${TED}_grid_V_0000.nc *_${TSD}_${TED}_grid_U_0000.nc *_${TSD}_${TED}_grid_W_0000.nc `
+   for FileMasterCR in $ListMasterCR; do
+      NumCharsCR=`echo $FileMasterCR | wc -c`
+      NumCharsCRm9=`expr $NumCharsCR - 9`
+      FileMasterCRT=`echo $FileMasterCR | cut -c-${NumCharsCRm9}`
+      if [ ! -f ${FileMasterCRT}.nc ]; then
+         echo FileMasterCR= $FileMasterCR
+###### Just To Manage a Bug in NEMO - START
+         NumFilesCR=`ls ${FileMasterCRT}_????.nc | wc -l`
+#         for FileLeafCR in `ls ${FileMasterCRT}_????.nc`; do
+#            ###Cmd="time ncatted -a DOMAIN_number_total,global,o,l,${NumFilesCR} $FileLeafCR"
+#            Cmd="time ${ExpDir}/tmp/change_DOMAIN_number_total ${NumFilesCR} $FileLeafCR"
+#            echo $Cmd
+#            eval $Cmd
+#         done
+###### Just To Manage a Bug in NEMO - END
+         Cmd="time ${ExpDir}/tmp/rebuild_nemo ${FileMasterCRT} ${NumFilesCR}"
+         echo $Cmd
+         eval $Cmd
+         if [ -f ${FileMasterCRT}.nc ] ; then
+            Cmd="rm ${FileMasterCRT}_????.nc"
+            echo $Cmd
+            eval $Cmd
+            if [ $NC4_COMPRESSION = "yes" ]; then
+	       Cmd="time nccopy -k3 -d1 -s ${FileMasterCRT}.nc ${FileMasterCRT}_tmp.nc "
+	       echo $Cmd
+               eval $Cmd
+               Cmd="mv ${FileMasterCRT}_tmp.nc ${FileMasterCRT}.nc "
+               echo $Cmd
+               eval $Cmd
+	    elif [ $NC4_COMPRESSION = "no" ]; then
+	       if [ $GZIP = "yes" ]; then
+	          Cmd="gzip ${FileMasterCRT}.nc"
+                  echo $Cmd
+                  eval $Cmd
+               elif [ $GZIP != "no" ]; then 
+                  echo "GZIP flag is set wrongly"
+                  exit 1
+               fi
+	    else
+	       echo "NC4_COMPRESSION flag is set wrongly"
+	       exit 1
+            fi
+         fi
+      fi
+   done
+}
+
+date -u
+CallRebuild
+
+
+echo $LSB_JOBID > ${ExpDir}/output/index_R${ACTUALINDEX}.jobid
+rm nam_rebuild
+date -u
+
+# move the output and other files to YYYYMM folder
+#if [ $OUTPUTSORT = "yes" ]; then
+#   month_folder=${TED:0:6}
+#   if [ ! -d "${ExpDir}/output/${month_folder}" ]; then
+#      Cmd="mkdir ${ExpDir}/output/${month_folder}"
+#      echo $Cmd
+#      eval $Cmd
+#   fi
+#   echo "Moving files to folder ${month_folder}"
+#   Cmd="mv ${ExpDir}/output/*_1?_*_grid_*.n* ${ExpDir}/output/${month_folder}/."
+#   echo $Cmd
+#   eval $Cmd
+#   echo
+#   Cmd="mv ${ExpDir}/output/index_* ${ExpDir}/output/mpiexec.log_* ${ExpDir}/output/bhist_* ${ExpDir}/output/adout_* ${ExpDir}/output/aderr_* ${ExpDir}/output/*.output_* ${ExpDir}/output/solver.stat_* ${ExpDir}/output/${month_folder}/."
+#   echo $Cmd
+#   eval $Cmd
+#   echo
+#fi

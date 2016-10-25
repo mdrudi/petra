@@ -1,0 +1,39 @@
+
+#from include
+# GZIP
+
+ExpDir=${WORKINGDIR}
+
+set -vx
+
+
+Cmd="cd ${ExpDir}/output"
+echo $Cmd
+eval $Cmd
+
+Cmd="${ExpDir}/tmp/rebuild -o rebuilt_file.nc restart_*.nc_${ACTUALDAY}"
+echo $Cmd
+eval $Cmd
+
+Cmd="mv rebuilt_file.nc restart.nc_${ACTUALDAY}"
+echo $Cmd
+eval $Cmd
+
+
+if [ $GZIP = "yes" ]; then
+   Cmd="gzip restart.nc_${ACTUALDAY}"
+   echo $Cmd
+   eval $Cmd
+fi
+
+if [ $? -eq 0 ] ; then
+   #touch index_B${ACTUALINDEX}.done
+   echo ${ACTUALDAY} > index_B${ACTUALINDEX}.done
+else
+   touch index_B${ACTUALINDEX}.error
+   exit 1
+fi
+
+
+echo $LSB_JOBID > ${ExpDir}/output/index_B${ACTUALINDEX}.jobid
+date -u

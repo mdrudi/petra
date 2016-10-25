@@ -105,18 +105,18 @@ done < $CFG/csf.txt
 
 first_time_step=1
 
-check_file()
-{
-##### CHECK IF EXIST THE FILE #####
-if [ -f $1 ]; then
-   echo "RESTART OK"
-#   touch restart_nemo.ok
-   else
-   echo "THERE IS NOT THE FILE " $1
-#   touch restart_nemo.ko
-   exit 1
-fi
-}
+#check_file()
+#{
+# ##### CHECK IF EXIST THE FILE #####
+#if [ -f $1 ]; then
+#   echo "RESTART OK"
+##   touch restart_nemo.ok
+#   else
+#   echo "THERE IS NOT THE FILE " $1
+##   touch restart_nemo.ko
+#   exit 1
+#fi
+#}
 check_dimfile()
 {
 ##### CHECK ON THE RIGHT DIMENSION ##### 
@@ -194,6 +194,8 @@ steps_per_simu=`expr $steps_per_hours \* $timing_restart_hours`
 n_time_step=`expr $first_time_step \- 1 + \( $timing_hours \* $steps_per_hours \)`
  
 actual_index=1
+actual_index2=1
+#flagNo01=0
 actual_time_step=$first_time_step
 actual_day_hour=$timing_start_day_hour
 nnWriteTag=`expr 86400 \/ $NEMOTimestep`
@@ -201,7 +203,7 @@ nnWriteTag=`expr 86400 \/ $NEMOTimestep`
 #echo $n_time_step
 #echo $timing_end_day_hour
 #echo $steps_per_simu
-
+rebuild_DD=`jday.py ${actual_day_hour:0:8} ${RR_interval}`
 #while [ $actual_time_step -le $n_time_step ]
 while [ $actual_day_hour -lt $timing_end_day_hour ]
 do
@@ -242,11 +244,11 @@ do
    else
       echo incasenotfirst=1        >> ${JobExpOut}
    fi
-   echo ACTUALINDEX=$actual_index  >> ${JobExpOut}
-   echo TSD=$actual_start_day      >> ${JobExpOut}
-   echo TSH=$actual_start_hour     >> ${JobExpOut}
-   echo TED=$actual_end_day        >> ${JobExpOut}
-   echo TEH=$actual_end_hours      >> ${JobExpOut}
+   echo "ACTUALINDEX=$actual_index"  >> ${JobExpOut}
+   echo "TSD=$actual_start_day"      >> ${JobExpOut}
+   echo "TSH=$actual_start_hour"     >> ${JobExpOut}
+   echo "TED=$actual_end_day"        >> ${JobExpOut}
+   echo "TEH=$actual_end_hours"      >> ${JobExpOut}
    if [ _$ProductionCycle = _ ]; then
       echo ProductionCycle=`date -u +%Y%m%d`   >> ${JobExpOut}
    fi
@@ -261,13 +263,17 @@ do
 
    sh tmp_template/${JobType}_prefix.sh 1 $QueueNameS ${name}_R${actual_index} R${actual_index} > ${JobExpOut}
 
-   echo                                 >> ${JobExpOut}
-   echo "WORKINGDIR=${WorkingDir}"      >> ${JobExpOut}
-   echo "TSD=${actual_start_day}"       >> ${JobExpOut}
-   echo "TED=${actual_end_day}  "       >> ${JobExpOut}
-   echo ACTUALINDEX=$actual_index       >> ${JobExpOut}
-   echo                                 >> ${JobExpOut}
-   cat tmp_template/Job_EXP_Rtemplate   >> ${JobExpOut}
+   echo                                   >> ${JobExpOut}
+   echo "WORKINGDIR=${WorkingDir}"        >> ${JobExpOut}
+   echo . $WorkingDir/exp-descriptor.sh   >> ${JobExpOut}
+   
+   echo
+   echo "TSD=${actual_start_day}"         >> ${JobExpOut}
+   echo "TED=${actual_end_day}  "         >> ${JobExpOut}
+   echo "ACTUALINDEX=$actual_index"       >> ${JobExpOut}
+   #echo "OUTPUTSORT=$output_sort"         >> ${JobExpOut}
+   echo                                   >> ${JobExpOut}
+   cat tmp_template/Job_EXP_Rtemplate     >> ${JobExpOut}
 
 
 #   sed -e "s/EXP_NAME/${name}_${actual_time_step}/g" \
@@ -290,12 +296,13 @@ do
              -e "s/NTCPUS/$nemo_n_mpi_proc/" \
              -e "s/CLIM-INIT/true/" \
              -e "s/RNRDTTAG/$NEMOTimestep/" \
-             -e "s/NNWRITETAG/$nnWriteTag/" \
+             -e "s*BDYDIR*$NEMO_DATA2*" \
+	     -e "s/NNWRITETAG/$nnWriteTag/" \
              -e "s*WORKINGDIR*$WorkingDir*" \
              $NEMO_NL > $WorkingDir/tmp/namelist_${actual_index}
          fi
 
-      else
+   else
 
       if [ $NEMO = "yes" ]; then
          sed -e "s/FIRSTIMESTEP/$actual_time_step/g" \
@@ -307,6 +314,7 @@ do
              -e "s/NTCPUS/$nemo_n_mpi_proc/" \
              -e "s/CLIM-INIT/false/" \
              -e "s/RNRDTTAG/$NEMOTimestep/" \
+             -e "s*BDYDIR*$NEMO_DATA2*" \
              -e "s/NNWRITETAG/$nnWriteTag/" \
              -e "s*WORKINGDIR*$WorkingDir*" \
              $NEMO_NL > $WorkingDir/tmp/namelist_${actual_index}
@@ -314,18 +322,48 @@ do
 
    fi
 
+   # create job template for reduild the NEMO restarts, one every last day of the month
+   #actual_DD=${actual_day_hour:6:2}  # extract the day (DD)
+   actual_YYYYMMDD=${actual_day_hour:0:8}
+   #actual_YYYY=${actual_day_hour:0:4}  # extract the year
+   #actual_MM=${actual_day_hour:4:2}  # extract the month
+   #actual_last_DD=`last_day_of_month.py ${actual_YYYY} ${actual_MM}`  
+   #file_rst=${WorkingDir}/output/restart.nc_${actual_day_hour}
+   #if [ "${actual_DD}" == "${actual_last_DD}" ] && [ ! -e "${file_rst}" ] ; then 
+   if [ "${actual_YYYYMMDD}" == "${rebuild_DD}" ] ; then
+      
+      JobExpOut=$WorkingDir/tmp/Job_EXP_B${actual_index2}
+      
+      sh tmp_template/${JobType}_prefix.sh $cpn $QueueNameP ${name}_B${actual_index2} B$actual_index2 > ${JobExpOut}
+      
+      echo                                   >> ${JobExpOut}
+      echo "WORKINGDIR=${WorkingDir}"        >> ${JobExpOut}
+      echo . $WorkingDir/exp-descriptor.sh   >> ${JobExpOut}
+      
+      echo
+      echo "ACTUALDAY=${actual_day_hour}"     >> ${JobExpOut}
+      echo "ACTUALINDEX=$actual_index2"      >> ${JobExpOut}
+      echo                                    >> ${JobExpOut}
 
-actual_index=`expr $actual_index + 1`
-actual_time_step=`expr $actual_time_step \+ $steps_per_simu `
-actual_day_hour=`jdayhour.py ${actual_day_hour} ${timing_restart_hours}`
+      cat tmp_template/Job_EXP_Btemplate      >> ${JobExpOut}
+      
+      actual_index2=`expr $actual_index2 + 1`
+      rebuild_DD=`jday.py ${rebuild_DD} ${RR_interval}`   
+   fi 
+   
+   actual_index=`expr $actual_index + 1`
+   actual_time_step=`expr $actual_time_step \+ $steps_per_simu `
+   actual_day_hour=`jdayhour.py ${actual_day_hour} ${timing_restart_hours}`
 
 done
 
 
 sed -e "s/ACTUALINDEX/$actual_index/g" \
-    -e "s/TED/$actual_end_day/g" \
-    -e "s/TEH/$actual_end_hours/g" \
-   tmp_template/exp_template.sh > $WorkingDir/tmp/${name}.sh
+    -e "s/REBUILDINDEX/$actual_index2/g" \
+    -e "s/RRINTERVAL/$RR_interval/g" \
+    -e "s/WALLTIME/$wall_time/g" \
+    -e "s/OUTPUTSORT/$output_sort/g" \
+    tmp_template/exp_template.sh > $WorkingDir/tmp/${name}.sh
 
 echo "New experiment ready in directory : $WorkingDir "
 echo "Script : $WorkingDir/tmp/${name}.sh "

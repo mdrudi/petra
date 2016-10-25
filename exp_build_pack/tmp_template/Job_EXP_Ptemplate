@@ -169,7 +169,8 @@ sec_counter.py TagSecCounterPG_wwpost_done
 #- Submit next Job
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-cd ${WORKINGDIR}/model
+#cd ${WORKINGDIR}/model
+cd ${WORKINGDIR}/output
 
 if [ $ERRORS -eq 0 -a $ERRORSW -eq 0 ]; then
 #   mv -f ${WORKINGDIR}/model/mpiexec.log ${WORKINGDIR}/output/mpiexec.log_${TED}${TEH}
